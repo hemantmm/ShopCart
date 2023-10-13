@@ -1,0 +1,88 @@
+
+[
+    {
+      "id": 1,
+      "name": "nike jordan",
+      "price": 500.99,
+      "category":"shoes",
+      "rating":2,
+      "imgUrl": "/imgs/nikejordan.png"
+    },
+    {
+      "id": 2,
+      "name": "IKIGAI",
+      "price": 69,
+      "category":"books",
+      "rating":5,
+      "imgUrl": "/imgs/book2.png"
+
+    },
+    {
+      "id": 3,
+      "name": "Adidas ",
+      "price": 699.99,
+      "category":"shoes",
+      "rating":3,
+      "imgUrl": "/imgs/adidas.png"
+
+    },
+    {
+      "id": 4,
+      "name": "Iphone 15",
+      "price": 1100,
+      "category":"phone",
+      "rating":4,
+      "imgUrl": "/imgs/iphone.png"
+    },
+    {
+      "id": 5,
+      "name": "Nike Air Jordan",
+      "price": 999.99,
+      "category":"shoes",
+      "rating":2,
+      "imgUrl": "/imgs/nikejordan1.png"
+    },
+    {
+      "id": 6,
+      "name": "ALCHEMIST",
+      "price": 199,
+      "category":"books",
+      "rating":5,
+      "imgUrl": "/imgs/book1.png"
+
+    },
+    {
+      "id": 7,
+      "name": "Adidas AIR",
+      "price": 899.99,
+      "category":"shoes",
+      "rating":3,
+      "imgUrl": "/imgs/adidas1.png"
+
+    },
+    {
+      "id": 8,
+      "name": "Iphone 14",
+      "price": 1000,
+      "category":"phone",
+      "rating":4,
+      "imgUrl": "/imgs/iphone14.png"
+    },
+    {
+      "id": 9,
+      "name": "Macbook AIR",
+      "price": 1100,
+      "category":"laptop",
+      "rating":3,
+      "imgUrl": "/imgs/macbook.png"
+
+    },
+    {
+      "id": 10,
+      "name": "DELL Inspiron",
+      "price": 900,
+      "category":"laptop",
+      "rating":4,
+      "imgUrl": "/imgs/dell.png"
+    }
+  ]
