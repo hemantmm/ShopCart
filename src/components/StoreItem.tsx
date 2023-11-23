@@ -1,6 +1,7 @@
 import {Card, Button} from 'react-bootstrap'
 import { formatCurrency } from '../utilities/formatCurrency'
 import { useShoppingCart } from '../context/ShoppingCartContext'
+import { RiStarSFill } from "react-icons/ri";
 
 type StoreItemProps={
     id:number,
@@ -10,6 +11,7 @@ type StoreItemProps={
     imgUrl:string
 }
 
+// const generateRatingStars=(rating:number)=>'<RiStarSFill />'.repeat(rating)
 export function StoreItem({id,name,price,imgUrl,rating}:StoreItemProps)
 {
     const {getItemQuantity, increaseItemQuantity,decreaseItemQuantity,removeFromCart}=useShoppingCart()
@@ -38,9 +40,11 @@ export function StoreItem({id,name,price,imgUrl,rating}:StoreItemProps)
                         <Button variant='danger' onClick={()=>removeFromCart(id)} size='sm'>Remove</Button>
                     </div>
                     }
-                    <div>
-                        {rating} stars
-                    </div>
+                    <div className='d-flex align-items-center' style={{marginTop:'1rem'}}>
+            {[...Array(rating)].map((_, index) => (
+              <RiStarSFill key={index} size={20} className='text-warning' />
+            ))}
+          </div>
                 </div>
             </Card.Body>
         </Card>
