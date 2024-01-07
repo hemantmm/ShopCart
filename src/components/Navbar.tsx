@@ -22,6 +22,10 @@ export function Navbar()
                     <Nav.Link to='/about' as={NavLink}>
                         About
                     </Nav.Link>
+
+                    <Nav.Link to='/contact' as={NavLink}>
+                        Contact
+                    </Nav.Link>
                 </Nav>
 
                 {cartQuantity>0 &&(
