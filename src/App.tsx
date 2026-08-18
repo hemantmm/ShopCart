@@ -6,12 +6,13 @@ import { About } from './pages/About'
 import {Navbar} from './components/Navbar'
 import { ShoppingCartProvider } from './context/ShoppingCartContext'
 import { Contact } from './pages/Contact'
+import './App.css'
 
 function App() {
   return(
     <ShoppingCartProvider>
-    <Navbar />
-  <Container className='mb-4'>
+      <Navbar />
+      <Container className='mb-5' fluid="lg">
     <Routes>
       <Route path='/' element={<Home />} />
       <Route path='/store' element={<Store />} />

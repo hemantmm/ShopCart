@@ -25,7 +25,8 @@ type ShoppingCartContext={
 
 const ShoppingCartContext=createContext({} as ShoppingCartContext)
 
-export  function useShoppingCart()
+// eslint-disable-next-line react-refresh/only-export-components
+export function useShoppingCart()
 {
     return useContext(ShoppingCartContext)
 }
