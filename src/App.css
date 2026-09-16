@@ -442,6 +442,12 @@ body {
   margin-bottom: 3rem;
 }
 
+/* Testimonials */
+.testimonial-card:hover {
+  transform: translateY(-5px);
+  box-shadow: var(--shadow-md) !important;
+}
+
 .section-header {
   display: flex;
   justify-content: space-between;

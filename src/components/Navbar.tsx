@@ -25,6 +25,9 @@ export function Navbar() {
           <Nav.Link to='/about' as={NavLink} className='nav-link-custom'>
             About
           </Nav.Link>
+          <Nav.Link to='/testimonials' as={NavLink} className='nav-link-custom'>
+            Reviews
+          </Nav.Link>
           <Nav.Link to='/contact' as={NavLink} className='nav-link-custom'>
             Contact
           </Nav.Link>
