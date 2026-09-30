@@ -23,9 +23,11 @@ export function CartItem({ id, quantity }: CartItemProps) {
             {item.name}
           </h6>
           <button
+            type="button"
             className="btn btn-link text-danger p-0 border-0"
             onClick={() => removeFromCart(item.id)}
             title="Remove item"
+            aria-label={`Remove ${item.name} from cart`}
           >
             <FiTrash2 size={15} />
           </button>
@@ -34,17 +36,21 @@ export function CartItem({ id, quantity }: CartItemProps) {
         <div className="d-flex align-items-center justify-content-between mt-2">
           <div className="d-flex align-items-center gap-2 bg-white rounded-pill px-2 py-1 border">
             <button
+              type="button"
               className="btn btn-sm p-0 border-0 text-secondary d-flex align-items-center"
               onClick={() => decreaseItemQuantity(item.id)}
               title="Decrease quantity"
+              aria-label={`Decrease quantity of ${item.name}`}
             >
               <FiMinus size={12} />
             </button>
             <span className="fw-bold small px-1 text-dark">{quantity}</span>
             <button
+              type="button"
               className="btn btn-sm p-0 border-0 text-primary d-flex align-items-center"
               onClick={() => increaseItemQuantity(item.id)}
               title="Increase quantity"
+              aria-label={`Increase quantity of ${item.name}`}
             >
               <FiPlus size={12} />
             </button>

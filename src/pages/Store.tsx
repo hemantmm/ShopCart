@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Col, Row, Form, Button } from 'react-bootstrap';
 import { StoreItem } from '../components/StoreItem';
 import storeItems from '../data/items.json';
@@ -19,26 +19,26 @@ export function Store() {
   const [minRating, setMinRating] = useState<number>(0);
   const [maxPrice, setMaxPrice] = useState<number>(1500);
   const [searchQuery, setSearchQuery] = useState<string>('');
-  const [filteredItems, setFilteredItems] = useState<Item[]>(storeItems as Item[]);
+  const [debouncedSearchQuery, setDebouncedSearchQuery] = useState('');
 
-  const applyFilters = (category: string, rating: number, priceMax: number, search: string) => {
-    const filtered = (storeItems as Item[]).filter((item) => {
-      const matchesCategory = category === 'all' || item.category.toLowerCase() === category.toLowerCase();
-      const matchesRating = item.rating >= rating;
-      const matchesPrice = item.price <= priceMax;
-      const matchesSearch = item.name.toLowerCase().includes(search.toLowerCase());
-      
-      return matchesCategory && matchesRating && matchesPrice && matchesSearch;
-    });
-    setFilteredItems(filtered);
-    setSelectedCategory(category);
-    setMinRating(rating);
-    setMaxPrice(priceMax);
-    setSearchQuery(search);
-  };
+  useEffect(() => {
+    const timeoutId = window.setTimeout(() => {
+      setDebouncedSearchQuery(searchQuery);
+    }, 250);
+
+    return () => window.clearTimeout(timeoutId);
+  }, [searchQuery]);
+
+  const filteredItems = useMemo(() => (storeItems as Item[]).filter((item) => {
+    const matchesCategory = selectedCategory === 'all' || item.category.toLowerCase() === selectedCategory.toLowerCase();
+    const matchesRating = item.rating >= minRating;
+    const matchesPrice = item.price <= maxPrice;
+    const matchesSearch = item.name.toLowerCase().includes(debouncedSearchQuery.toLowerCase());
+
+    return matchesCategory && matchesRating && matchesPrice && matchesSearch;
+  }), [debouncedSearchQuery, maxPrice, minRating, selectedCategory]);
 
   const clearFilters = () => {
-    setFilteredItems(storeItems as Item[]);
     setSelectedCategory('all');
     setMinRating(0);
     setMaxPrice(1500);
@@ -96,7 +96,7 @@ export function Store() {
                   placeholder="e.g. MacBook..."
                   className="ps-5 rounded-pill"
                   value={searchQuery}
-                  onChange={(e) => applyFilters(selectedCategory, minRating, maxPrice, e.target.value)}
+                  onChange={(e) => setSearchQuery(e.target.value)}
                 />
               </div>
             </div>
@@ -113,7 +113,7 @@ export function Store() {
                         ? 'btn-primary fw-semibold' 
                         : 'btn-light text-muted hover-bg-gray'
                     }`}
-                    onClick={() => applyFilters(cat.id, minRating, maxPrice, searchQuery)}
+                    onClick={() => setSelectedCategory(cat.id)}
                   >
                     {cat.label}
                   </button>
@@ -132,7 +132,7 @@ export function Store() {
                 max={1500}
                 step={50}
                 value={maxPrice}
-                onChange={(e) => applyFilters(selectedCategory, minRating, parseInt(e.target.value), searchQuery)}
+                onChange={(e) => setMaxPrice(parseInt(e.target.value, 10))}
               />
               <div className="d-flex justify-content-between text-muted" style={{ fontSize: '0.75rem' }}>
                 <span>$0</span>
@@ -146,7 +146,7 @@ export function Store() {
               <Form.Select
                 className="rounded-pill"
                 value={minRating}
-                onChange={(e) => applyFilters(selectedCategory, parseFloat(e.target.value), maxPrice, searchQuery)}
+                onChange={(e) => setMinRating(parseFloat(e.target.value))}
               >
                 <option value="0">All Ratings</option>
                 <option value="3">3★ & above</option>

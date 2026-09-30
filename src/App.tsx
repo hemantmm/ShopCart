@@ -7,12 +7,15 @@ import { Testimonials } from './pages/Testimonials'
 import {Navbar} from './components/Navbar'
 import { ShoppingCartProvider } from './context/ShoppingCartContext'
 import { Contact } from './pages/Contact'
+import { NotFound } from './pages/NotFound'
+import { ShoppingCart } from './components/ShoppingCart'
 import './App.css'
 
 function App() {
   return(
     <ShoppingCartProvider>
       <Navbar />
+      <ShoppingCart />
       <Container className='mb-5' fluid="lg">
     <Routes>
       <Route path='/' element={<Home />} />
@@ -20,6 +23,7 @@ function App() {
       <Route path='/about' element={<About />} />
       <Route path='/testimonials' element={<Testimonials />} />
       <Route path='/contact' element={<Contact />} />
+      <Route path='*' element={<NotFound />} />
     </Routes>
   </Container>
   </ShoppingCartProvider>

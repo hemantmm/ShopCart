@@ -52,6 +52,7 @@ export function Navbar() {
                 background: '#ffffff'
               }}
               title="View Cart"
+              aria-label={`View cart${cartQuantity > 0 ? `, ${cartQuantity} items` : ''}`}
             >
               <FiShoppingBag size={20} />
               {cartQuantity > 0 && (

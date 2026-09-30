@@ -1,23 +1,35 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState } from 'react';
 
-export function useLocalStorage<T>(key:string, initalValue:T | (()=>T)){
+export function useLocalStorage<T>(
+    key: string,
+    initialValue: T | (() => T),
+    validate?: (value: unknown) => value is T,
+) {
+    const getInitialValue = () => {
+        const fallback = typeof initialValue === 'function'
+            ? (initialValue as () => T)()
+            : initialValue;
 
-    const [value,setValue]=useState<T>(()=>{
-        const jsonValue=localStorage.getItem(key)
-        if(jsonValue!=null) return JSON.parse(jsonValue)
-
-        if(typeof initalValue==="function"){
-            return (initalValue as ()=>T)()
+        try {
+            const storedValue = localStorage.getItem(key);
+            if (storedValue === null) return fallback;
+            const parsedValue: unknown = JSON.parse(storedValue);
+            if (validate === undefined) return parsedValue as T;
+            return validate(parsedValue) ? parsedValue : fallback;
+        } catch {
+            return fallback;
         }
-        else
-        {
-            return initalValue
+    };
+
+    const [value, setValue] = useState<T>(getInitialValue);
+
+    useEffect(() => {
+        try {
+            localStorage.setItem(key, JSON.stringify(value));
+        } catch {
+            // Storage can be unavailable or full; the in-memory state remains usable.
         }
-    })
+    }, [key, value]);
 
-    useEffect(()=>{
-        localStorage.setItem(key, JSON.stringify(value))
-    }, [key,value])
-
-    return [value,setValue] as [typeof value, typeof setValue]
+    return [value, setValue] as const;
 }

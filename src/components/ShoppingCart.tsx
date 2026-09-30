@@ -17,11 +17,12 @@ import {
 import { Link } from 'react-router-dom';
 
 type ShoppingCartProps = {
-  isOpen: boolean;
+  isOpen?: boolean;
 };
 
-export function ShoppingCart({ isOpen }: ShoppingCartProps) {
-  const { closeCart, cartItems, clearCart, cartQuantity } = useShoppingCart();
+export function ShoppingCart({ isOpen: isOpenProp }: ShoppingCartProps) {
+  const { closeCart, cartItems, clearCart, cartQuantity, isCartOpen } = useShoppingCart();
+  const isOpen = isOpenProp ?? isCartOpen;
 
   // Step state: 'cart' | 'checkout' | 'success'
   const [currentStep, setCurrentStep] = useState<'cart' | 'checkout' | 'success'>('cart');
@@ -134,7 +135,7 @@ export function ShoppingCart({ isOpen }: ShoppingCartProps) {
             </div>
             <h4 className="fw-bold text-dark mb-2">Order Confirmed!</h4>
             <p className="text-muted small mb-3">
-              Thank you for shopping with ShopCart. Your payment has been processed and your order is being prepared.
+              This demo order has been recorded. No payment was processed.
             </p>
             <div className="p-3 bg-light rounded-3 border mb-4">
               <span className="text-muted small d-block mb-1">Order Reference Number</span>
@@ -181,12 +182,14 @@ export function ShoppingCart({ isOpen }: ShoppingCartProps) {
             {/* Step Selector Tabs */}
             <div className="d-flex gap-2 mb-3">
               <button
+                type="button"
                 className={`checkout-step-tab ${currentStep === 'cart' ? 'active' : ''}`}
                 onClick={() => setCurrentStep('cart')}
               >
                 1. Review Cart ({cartQuantity})
               </button>
               <button
+                type="button"
                 className={`checkout-step-tab ${currentStep === 'checkout' ? 'active' : ''}`}
                 onClick={() => setCurrentStep('checkout')}
               >
@@ -210,7 +213,9 @@ export function ShoppingCart({ isOpen }: ShoppingCartProps) {
                     <span>Have a Promo Code?</span>
                   </div>
                   <form onSubmit={handleApplyPromo} className="promo-apply-group">
+                    <label htmlFor="promo-code" className="visually-hidden">Promo code</label>
                     <Form.Control
+                      id="promo-code"
                       size="sm"
                       type="text"
                       placeholder="e.g. SHOPCART15"
@@ -261,6 +266,7 @@ export function ShoppingCart({ isOpen }: ShoppingCartProps) {
                 </div>
 
                 <Button
+                  type="button"
                   variant="primary"
                   className="w-100 py-2 rounded-pill fw-bold d-flex align-items-center justify-content-center gap-2 shadow"
                   onClick={() => setCurrentStep('checkout')}
@@ -283,7 +289,9 @@ export function ShoppingCart({ isOpen }: ShoppingCartProps) {
                     </div>
                     <Row className="g-2">
                       <Col xs={12}>
+                        <Form.Label htmlFor="shipping-name" className="visually-hidden">Full name</Form.Label>
                         <Form.Control
+                          id="shipping-name"
                           size="sm"
                           required
                           type="text"
@@ -293,7 +301,9 @@ export function ShoppingCart({ isOpen }: ShoppingCartProps) {
                         />
                       </Col>
                       <Col xs={12}>
+                        <Form.Label htmlFor="shipping-address" className="visually-hidden">Street address</Form.Label>
                         <Form.Control
+                          id="shipping-address"
                           size="sm"
                           required
                           type="text"
@@ -303,7 +313,9 @@ export function ShoppingCart({ isOpen }: ShoppingCartProps) {
                         />
                       </Col>
                       <Col xs={5}>
+                        <Form.Label htmlFor="shipping-city" className="visually-hidden">City</Form.Label>
                         <Form.Control
+                          id="shipping-city"
                           size="sm"
                           required
                           type="text"
@@ -313,7 +325,9 @@ export function ShoppingCart({ isOpen }: ShoppingCartProps) {
                         />
                       </Col>
                       <Col xs={3}>
+                        <Form.Label htmlFor="shipping-state" className="visually-hidden">State</Form.Label>
                         <Form.Control
+                          id="shipping-state"
                           size="sm"
                           required
                           type="text"
@@ -323,7 +337,9 @@ export function ShoppingCart({ isOpen }: ShoppingCartProps) {
                         />
                       </Col>
                       <Col xs={4}>
+                        <Form.Label htmlFor="shipping-zip" className="visually-hidden">ZIP code</Form.Label>
                         <Form.Control
+                          id="shipping-zip"
                           size="sm"
                           required
                           type="text"
@@ -344,12 +360,14 @@ export function ShoppingCart({ isOpen }: ShoppingCartProps) {
                       </div>
                       <span className="small text-muted d-flex align-items-center gap-1">
                         <FiLock size={12} className="text-success" />
-                        256-bit Encrypted
+                        Demo checkout
                       </span>
                     </div>
                     <Row className="g-2">
                       <Col xs={12}>
+                        <Form.Label htmlFor="card-number" className="visually-hidden">Card number</Form.Label>
                         <Form.Control
+                          id="card-number"
                           size="sm"
                           required
                           type="text"
@@ -360,7 +378,9 @@ export function ShoppingCart({ isOpen }: ShoppingCartProps) {
                         />
                       </Col>
                       <Col xs={6}>
+                        <Form.Label htmlFor="expiration-date" className="visually-hidden">Expiration date</Form.Label>
                         <Form.Control
+                          id="expiration-date"
                           size="sm"
                           required
                           type="text"
@@ -371,7 +391,9 @@ export function ShoppingCart({ isOpen }: ShoppingCartProps) {
                         />
                       </Col>
                       <Col xs={6}>
+                        <Form.Label htmlFor="card-cvv" className="visually-hidden">Card security code</Form.Label>
                         <Form.Control
+                          id="card-cvv"
                           size="sm"
                           required
                           type="password"
@@ -394,6 +416,7 @@ export function ShoppingCart({ isOpen }: ShoppingCartProps) {
 
                   <div className="d-flex gap-2">
                     <Button
+                      type="button"
                       variant="outline-secondary"
                       size="sm"
                       className="rounded-pill px-3"
