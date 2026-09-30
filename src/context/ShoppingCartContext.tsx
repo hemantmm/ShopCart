@@ -1,5 +1,6 @@
 import {createContext, ReactNode, useContext, useState} from 'react'
 import { useLocalStorage } from '../hooks/useLocalStorage'
+import storeItems from '../data/items.json'
 
 type ShoppingCartProviderProps={
     children:ReactNode
@@ -10,12 +11,15 @@ type CartItem={
     quantity:number
 }
 
+const validItemIds = new Set(storeItems.map(item => item.id))
+
 function isCartItems(value: unknown): value is CartItem[] {
     return Array.isArray(value) && value.every(item => (
         typeof item === 'object' &&
         item !== null &&
         typeof item.id === 'number' &&
         Number.isInteger(item.id) &&
+        validItemIds.has(item.id) &&
         typeof item.quantity === 'number' &&
         Number.isInteger(item.quantity) &&
         item.quantity > 0
