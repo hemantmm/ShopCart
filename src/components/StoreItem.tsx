@@ -60,6 +60,7 @@ export function StoreItem({ id, name, price, imgUrl, rating, category }: StoreIt
         <div className="mt-auto">
           {quantity === 0 ? (
             <button
+              type="button"
               className='product-add-btn'
               onClick={() => increaseItemQuantity(id)}
             >
@@ -70,9 +71,11 @@ export function StoreItem({ id, name, price, imgUrl, rating, category }: StoreIt
             <div className='d-flex flex-column gap-2'>
               <div className="qty-control-box">
                 <button
+                  type="button"
                   className="qty-btn"
                   onClick={() => decreaseItemQuantity(id)}
                   title="Decrease quantity"
+                  aria-label={`Decrease quantity of ${name}`}
                 >
                   <RiSubtractLine size={16} />
                 </button>
@@ -81,17 +84,21 @@ export function StoreItem({ id, name, price, imgUrl, rating, category }: StoreIt
                   <span className='text-muted' style={{ fontSize: '0.75rem' }}>in cart</span>
                 </div>
                 <button
+                  type="button"
                   className="qty-btn"
                   onClick={() => increaseItemQuantity(id)}
                   title="Increase quantity"
+                  aria-label={`Increase quantity of ${name}`}
                 >
                   <RiAddLine size={16} />
                 </button>
               </div>
               <button
+                type="button"
                 className='btn btn-sm btn-outline-danger d-flex align-items-center justify-content-center gap-1 w-100 py-1'
                 style={{ fontSize: '0.8rem', borderRadius: '8px' }}
                 onClick={() => removeFromCart(id)}
+                aria-label={`Remove ${name} from cart`}
               >
                 <RiDeleteBin6Line size={14} />
                 Remove
