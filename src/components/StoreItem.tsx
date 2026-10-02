@@ -1,6 +1,7 @@
 import { formatCurrency } from '../utilities/formatCurrency';
 import { useShoppingCart } from '../context/ShoppingCartContext';
-import { RiStarSFill, RiShoppingCart2Line, RiAddLine, RiSubtractLine, RiDeleteBin6Line } from 'react-icons/ri';
+import { useWishlist } from '../context/WishlistContext';
+import { RiStarSFill, RiShoppingCart2Line, RiAddLine, RiSubtractLine, RiDeleteBin6Line, RiHeartLine, RiHeartFill } from 'react-icons/ri';
 
 type StoreItemProps = {
   id: number;
@@ -13,7 +14,9 @@ type StoreItemProps = {
 
 export function StoreItem({ id, name, price, imgUrl, rating, category }: StoreItemProps) {
   const { getItemQuantity, increaseItemQuantity, decreaseItemQuantity, removeFromCart } = useShoppingCart();
+  const { isInWishlist, toggleWishlist } = useWishlist();
   const quantity = getItemQuantity(id);
+  const isWishlisted = isInWishlist(id);
 
   const getTagClass = (cat?: string) => {
     switch (cat?.toLowerCase()) {
@@ -26,7 +29,20 @@ export function StoreItem({ id, name, price, imgUrl, rating, category }: StoreIt
   };
 
   return (
-    <div className='modern-product-card'>
+    <div className='modern-product-card position-relative'>
+      <button 
+        className="wishlist-btn border-0 bg-transparent p-2 position-absolute" 
+        style={{ top: '10px', right: '10px', zIndex: 10, cursor: 'pointer', transition: 'all 0.2s ease' }}
+        onClick={() => toggleWishlist(id)}
+        title={isWishlisted ? "Remove from wishlist" : "Add to wishlist"}
+      >
+        {isWishlisted ? (
+          <RiHeartFill size={24} color="#f43f5e" />
+        ) : (
+          <RiHeartLine size={24} color="#94a3b8" />
+        )}
+      </button>
+
       <div className="card-img-wrapper">
         {category && (
           <span className={`product-tag ${getTagClass(category)}`}>

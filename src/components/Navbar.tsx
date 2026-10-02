@@ -1,11 +1,13 @@
 import { Button, Container, Nav, Navbar as NavbarBs } from 'react-bootstrap';
-import { NavLink } from 'react-router-dom';
+import { NavLink, Link } from 'react-router-dom';
 import { useShoppingCart } from '../context/ShoppingCartContext';
-import { RiShoppingBag3Fill } from 'react-icons/ri';
+import { useWishlist } from '../context/WishlistContext';
+import { RiShoppingBag3Fill, RiHeartLine, RiHeartFill } from 'react-icons/ri';
 import { FiShoppingBag } from 'react-icons/fi';
 
 export function Navbar() {
   const { openCart, cartQuantity } = useShoppingCart();
+  const { wishlistQuantity } = useWishlist();
 
   return (
     <NavbarBs sticky='top' className='shopcart-navbar shadow-sm mb-4 py-3'>
@@ -39,26 +41,49 @@ export function Navbar() {
               Store
             </Nav.Link>
           </Nav>
-          <div className="cart-btn-wrapper">
-            <Button
-              onClick={openCart}
-              variant='outline-primary'
-              className='rounded-circle d-flex align-items-center justify-content-center border-2'
-              style={{
-                width: '2.85rem',
-                height: '2.85rem',
-                borderColor: '#e0e7ff',
-                color: '#4f46e5',
-                background: '#ffffff'
-              }}
-              title="View Cart"
-              aria-label={`View cart${cartQuantity > 0 ? `, ${cartQuantity} items` : ''}`}
-            >
-              <FiShoppingBag size={20} />
-              {cartQuantity > 0 && (
-                <span className="cart-badge-count">{cartQuantity}</span>
-              )}
-            </Button>
+          
+          <div className="d-flex gap-2">
+            <div className="wishlist-btn-wrapper position-relative">
+              <Link
+                to="/wishlist"
+                className='btn btn-outline-danger rounded-circle d-flex align-items-center justify-content-center border-2 p-0'
+                style={{
+                  width: '2.85rem',
+                  height: '2.85rem',
+                  borderColor: '#ffe4e6',
+                  color: '#e11d48',
+                  background: '#ffffff'
+                }}
+                title="View Wishlist"
+              >
+                {wishlistQuantity > 0 ? <RiHeartFill size={20} /> : <RiHeartLine size={20} />}
+                {wishlistQuantity > 0 && (
+                  <span className="cart-badge-count bg-danger">{wishlistQuantity}</span>
+                )}
+              </Link>
+            </div>
+
+            <div className="cart-btn-wrapper position-relative">
+              <Button
+                onClick={openCart}
+                variant='outline-primary'
+                className='rounded-circle d-flex align-items-center justify-content-center border-2 p-0'
+                style={{
+                  width: '2.85rem',
+                  height: '2.85rem',
+                  borderColor: '#e0e7ff',
+                  color: '#4f46e5',
+                  background: '#ffffff'
+                }}
+                title="View Cart"
+                aria-label={`View cart${cartQuantity > 0 ? `, ${cartQuantity} items` : ''}`}
+              >
+                <FiShoppingBag size={20} />
+                {cartQuantity > 0 && (
+                  <span className="cart-badge-count">{cartQuantity}</span>
+                )}
+              </Button>
+            </div>
           </div>
         </div>
       </Container>
