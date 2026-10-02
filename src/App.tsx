@@ -11,6 +11,8 @@ import { Contact } from './pages/Contact'
 import { NotFound } from './pages/NotFound'
 import { Wishlist } from './pages/Wishlist'
 import { ShoppingCart } from './components/ShoppingCart'
+import { ToastContainer } from 'react-toastify'
+import 'react-toastify/dist/ReactToastify.css'
 import './App.css'
 
 function App() {
@@ -30,6 +32,18 @@ function App() {
         <Route path='*' element={<NotFound />} />
       </Routes>
     </Container>
+    <ToastContainer
+      position="bottom-right"
+      autoClose={2500}
+      hideProgressBar={false}
+      newestOnTop
+      closeOnClick
+      rtl={false}
+      pauseOnFocusLoss={false}
+      draggable
+      pauseOnHover
+      theme="light"
+    />
     </ShoppingCartProvider>
   </WishlistProvider>
    )

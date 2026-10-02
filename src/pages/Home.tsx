@@ -6,6 +6,7 @@ import SlideShow, { ShowcaseSlide } from '../components/SlideShow';
 import storeItems from '../data/items.json';
 import { useShoppingCart } from '../context/ShoppingCartContext';
 import { formatCurrency } from '../utilities/formatCurrency';
+import { toast } from 'react-toastify';
 import {
   FiArrowRight,
   FiTruck,
@@ -111,7 +112,7 @@ export function Home() {
   const [emailInput, setEmailInput] = useState('');
   const [isSubscribed, setIsSubscribed] = useState(false);
 
-  const { increaseItemQuantity } = useShoppingCart();
+  const { increaseItemQuantity, openCart } = useShoppingCart();
 
   // Flash deal countdown timer state
   const [timeLeft, setTimeLeft] = useState({
@@ -283,7 +284,33 @@ export function Home() {
               <Button
                 variant="warning"
                 className="flash-deal-btn fw-bold px-4 py-2 rounded-pill d-flex align-items-center justify-content-center gap-2 shadow"
-                onClick={() => increaseItemQuantity(flashDealItem.id)}
+                onClick={() => {
+                  increaseItemQuantity(flashDealItem.id);
+                  toast.success(
+                    <div className="d-flex align-items-center justify-content-between gap-3">
+                      <div>
+                        <div className="fw-bold text-dark" style={{ fontSize: '0.9rem' }}>{flashDealItem.name}</div>
+                        <div className="text-muted" style={{ fontSize: '0.8rem' }}>Flash deal added to cart!</div>
+                      </div>
+                      <button
+                        type="button"
+                        className="btn btn-sm btn-primary px-3 py-1 text-nowrap fw-semibold shadow-sm"
+                        style={{ fontSize: '0.75rem', borderRadius: '20px' }}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          openCart();
+                        }}
+                      >
+                        View Cart
+                      </button>
+                    </div>,
+                    {
+                      icon: <RiShoppingBag3Fill size={20} color="#4f46e5" />,
+                      autoClose: 2500,
+                      closeOnClick: true,
+                    }
+                  );
+                }}
               >
                 <RiShoppingBag3Fill size={18} />
                 <span>Claim Deal</span>
