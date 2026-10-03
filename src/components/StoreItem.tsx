@@ -117,7 +117,7 @@ export function StoreItem({ id, name, price, imgUrl, rating, category }: StoreIt
               key={index}
               size={18}
               style={{
-                color: index < rating ? '#f59e0b' : '#e2e8f0'
+                color: index < rating ? '#f59e0b' : 'var(--star-empty, #e2e8f0)'
               }}
             />
           ))}
