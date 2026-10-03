@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Col, Row, Form, Button } from 'react-bootstrap';
+import { Col, Row, Form, Button, Offcanvas } from 'react-bootstrap';
 import { StoreItem } from '../components/StoreItem';
 import storeItems from '../data/items.json';
 import { FiFilter, FiRotateCcw, FiSearch, FiSliders } from 'react-icons/fi';
@@ -20,6 +20,7 @@ export function Store() {
   const [maxPrice, setMaxPrice] = useState<number>(1500);
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [debouncedSearchQuery, setDebouncedSearchQuery] = useState('');
+  const [showMobileFilter, setShowMobileFilter] = useState<boolean>(false);
 
   useEffect(() => {
     const timeoutId = window.setTimeout(() => {
@@ -45,6 +46,11 @@ export function Store() {
     setSearchQuery('');
   };
 
+  const activeFilterCount = (selectedCategory !== 'all' ? 1 : 0) +
+    (minRating > 0 ? 1 : 0) +
+    (maxPrice < 1500 ? 1 : 0) +
+    (debouncedSearchQuery.trim() !== '' ? 1 : 0);
+
   const categories = [
     { id: 'all', label: 'All Products' },
     { id: 'shoes', label: 'Shoes & Sneakers' },
@@ -53,9 +59,77 @@ export function Store() {
     { id: 'phone', label: 'Smartphones' }
   ];
 
+  const renderFilterControls = () => (
+    <>
+      <div className="mb-4">
+        <Form.Label className="small fw-bold text-muted mb-2">Search Products</Form.Label>
+        <div className="position-relative">
+          <FiSearch className="position-absolute text-muted" style={{ top: '10px', left: '12px' }} />
+          <Form.Control
+            type="text"
+            placeholder="e.g. MacBook..."
+            className="ps-5 rounded-pill"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
+        </div>
+      </div>
+
+      <div className="mb-4">
+        <Form.Label className="small fw-bold text-muted mb-2">Categories</Form.Label>
+        <div className="d-flex flex-column gap-2">
+          {categories.map((cat) => (
+            <button
+              key={cat.id}
+              className={`btn text-start px-3 py-2 rounded-3 border-0 transition-all ${
+                selectedCategory === cat.id 
+                  ? 'btn-primary fw-semibold' 
+                  : 'btn-light text-muted hover-bg-gray'
+              }`}
+              onClick={() => setSelectedCategory(cat.id)}
+            >
+              {cat.label}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div className="mb-4">
+        <div className="d-flex justify-content-between align-items-center mb-2">
+          <Form.Label className="small fw-bold text-muted mb-0">Max Price</Form.Label>
+          <span className="badge bg-primary rounded-pill">${maxPrice}</span>
+        </div>
+        <Form.Range
+          min={0}
+          max={1500}
+          step={50}
+          value={maxPrice}
+          onChange={(e) => setMaxPrice(parseInt(e.target.value, 10))}
+        />
+        <div className="d-flex justify-content-between text-muted" style={{ fontSize: '0.75rem' }}>
+          <span>$0</span>
+          <span>$1500+</span>
+        </div>
+      </div>
+
+      <div className="mb-3">
+        <Form.Label className="small fw-bold text-muted mb-2">Minimum Rating</Form.Label>
+        <Form.Select
+          className="rounded-pill"
+          value={minRating}
+          onChange={(e) => setMinRating(parseFloat(e.target.value))}
+        >
+          <option value="0">All Ratings</option>
+          <option value="3">3★ & above</option>
+          <option value="4">4★ & above</option>
+          <option value="5">5★ only</option>
+        </Form.Select>
+      </div>
+    </>
+  );
+
   return (
     <div className="store-page-container">
-      {/* 1. STORE HERO BANNER */}
       <section className="about-hero-section mb-4">
         <div className="hero-tag mx-auto">
           <RiShoppingBag3Fill color="#38bdf8" />
@@ -70,8 +144,7 @@ export function Store() {
       </section>
 
       <Row className="g-4 mb-5">
-        {/* 2. SIDEBAR FILTERS (DESKTOP) */}
-        <Col lg={3}>
+        <Col lg={3} className="d-none d-lg-block">
           <div className="store-filter-sidebar p-4 bg-white rounded-4 border shadow-sm sticky-top" style={{ top: '90px' }}>
             <div className="d-flex align-items-center justify-content-between mb-4">
               <h5 className="fw-bold mb-0 d-flex align-items-center gap-2">
@@ -86,86 +159,37 @@ export function Store() {
               </Button>
             </div>
 
-            {/* Search */}
-            <div className="mb-4">
-              <Form.Label className="small fw-bold text-muted mb-2">Search Products</Form.Label>
-              <div className="position-relative">
-                <FiSearch className="position-absolute text-muted" style={{ top: '10px', left: '12px' }} />
-                <Form.Control
-                  type="text"
-                  placeholder="e.g. MacBook..."
-                  className="ps-5 rounded-pill"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                />
-              </div>
-            </div>
-
-            {/* Categories */}
-            <div className="mb-4">
-              <Form.Label className="small fw-bold text-muted mb-2">Categories</Form.Label>
-              <div className="d-flex flex-column gap-2">
-                {categories.map((cat) => (
-                  <button
-                    key={cat.id}
-                    className={`btn text-start px-3 py-2 rounded-3 border-0 transition-all ${
-                      selectedCategory === cat.id 
-                        ? 'btn-primary fw-semibold' 
-                        : 'btn-light text-muted hover-bg-gray'
-                    }`}
-                    onClick={() => setSelectedCategory(cat.id)}
-                  >
-                    {cat.label}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Max Price */}
-            <div className="mb-4">
-              <div className="d-flex justify-content-between align-items-center mb-2">
-                <Form.Label className="small fw-bold text-muted mb-0">Max Price</Form.Label>
-                <span className="badge bg-primary rounded-pill">${maxPrice}</span>
-              </div>
-              <Form.Range
-                min={0}
-                max={1500}
-                step={50}
-                value={maxPrice}
-                onChange={(e) => setMaxPrice(parseInt(e.target.value, 10))}
-              />
-              <div className="d-flex justify-content-between text-muted" style={{ fontSize: '0.75rem' }}>
-                <span>$0</span>
-                <span>$1500+</span>
-              </div>
-            </div>
-
-            {/* Minimum Rating */}
-            <div className="mb-3">
-              <Form.Label className="small fw-bold text-muted mb-2">Minimum Rating</Form.Label>
-              <Form.Select
-                className="rounded-pill"
-                value={minRating}
-                onChange={(e) => setMinRating(parseFloat(e.target.value))}
-              >
-                <option value="0">All Ratings</option>
-                <option value="3">3★ & above</option>
-                <option value="4">4★ & above</option>
-                <option value="5">5★ only</option>
-              </Form.Select>
-            </div>
+            {renderFilterControls()}
           </div>
         </Col>
 
         {/* 3. PRODUCT GRID */}
-        <Col lg={9}>
-          <div className="d-flex justify-content-between align-items-center mb-4 bg-white p-3 rounded-4 border shadow-sm">
-            <h5 className="mb-0 fw-bold text-dark">
-              {categories.find(c => c.id === selectedCategory)?.label || 'Products'}
-            </h5>
-            <span className="text-muted small fw-semibold">
-              Showing {filteredItems.length} result{filteredItems.length !== 1 ? 's' : ''}
-            </span>
+        <Col xs={12} lg={9}>
+          <div className="d-flex justify-content-between align-items-center mb-4 bg-white p-3 rounded-4 border shadow-sm flex-wrap gap-2">
+            <div>
+              <h5 className="mb-0 fw-bold text-dark">
+                {categories.find(c => c.id === selectedCategory)?.label || 'Products'}
+              </h5>
+              <span className="text-muted small fw-semibold">
+                Showing {filteredItems.length} result{filteredItems.length !== 1 ? 's' : ''}
+              </span>
+            </div>
+
+            <div className="d-lg-none">
+              <Button
+                variant="outline-primary"
+                className="d-flex align-items-center gap-2 rounded-pill px-3 py-2 fw-semibold"
+                onClick={() => setShowMobileFilter(true)}
+              >
+                <FiSliders size={16} />
+                <span>Filters</span>
+                {activeFilterCount > 0 && (
+                  <span className="badge bg-primary text-white rounded-pill ms-1">
+                    {activeFilterCount}
+                  </span>
+                )}
+              </Button>
+            </div>
           </div>
 
           {filteredItems.length === 0 ? (
@@ -199,6 +223,47 @@ export function Store() {
           )}
         </Col>
       </Row>
+
+      <Offcanvas
+        show={showMobileFilter}
+        onHide={() => setShowMobileFilter(false)}
+        placement="start"
+        className="store-filter-offcanvas"
+      >
+        <Offcanvas.Header closeButton className="border-bottom py-3">
+          <Offcanvas.Title className="d-flex align-items-center gap-2 fw-bold fs-5">
+            <FiSliders className="text-primary" size={20} />
+            <span>Filter Products</span>
+            {activeFilterCount > 0 && (
+              <span className="badge bg-primary rounded-pill small px-2 py-1">
+                {activeFilterCount} active
+              </span>
+            )}
+          </Offcanvas.Title>
+        </Offcanvas.Header>
+        <Offcanvas.Body className="p-4 d-flex flex-column">
+          <div className="flex-grow-1 overflow-auto pe-1">
+            {renderFilterControls()}
+          </div>
+          <div className="pt-3 border-top d-flex gap-2 mt-3">
+            <Button
+              variant="outline-secondary"
+              className="rounded-pill flex-grow-1 py-2 fw-semibold d-flex align-items-center justify-content-center gap-1"
+              onClick={clearFilters}
+            >
+              <FiRotateCcw size={14} /> Reset
+            </Button>
+            <Button
+              variant="primary"
+              className="rounded-pill flex-grow-1 py-2 fw-semibold shadow"
+              onClick={() => setShowMobileFilter(false)}
+            >
+              Show {filteredItems.length} Results
+            </Button>
+          </div>
+        </Offcanvas.Body>
+      </Offcanvas>
     </div>
   );
 }
+

@@ -51,8 +51,10 @@ const Slideshow: React.FC<SlideshowProps> = ({ slides, interval = 4500 }) => {
       onMouseEnter={() => setIsPaused(true)}
       onMouseLeave={() => setIsPaused(false)}
     >
-      <span className="showcase-badge">{current.tag || current.category}</span>
-      <span className="showcase-price-tag">{formatCurrency(current.price)}</span>
+      <div className="showcase-card-header">
+        <span className="showcase-badge">{current.tag || current.category}</span>
+        <span className="showcase-price-tag">{formatCurrency(current.price)}</span>
+      </div>
 
       <div className="showcase-img-container">
         <img
