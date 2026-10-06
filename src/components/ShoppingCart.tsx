@@ -12,9 +12,79 @@ import {
   FiTag,
   FiTruck,
   FiCreditCard,
-  FiMapPin
+  FiMapPin,
+  FiMail
 } from 'react-icons/fi';
 import { Link } from 'react-router-dom';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
+import { toast } from 'react-toastify';
+
+const checkoutSchema = z.object({
+  fullName: z
+    .string()
+    .trim()
+    .min(1, 'Full name is required')
+    .min(2, 'Name must be at least 2 characters'),
+  email: z
+    .string()
+    .trim()
+    .min(1, 'Email address is required')
+    .email('Please enter a valid email address (e.g. name@example.com)'),
+  address: z
+    .string()
+    .trim()
+    .min(1, 'Street address is required')
+    .min(5, 'Street address must be at least 5 characters'),
+  city: z
+    .string()
+    .trim()
+    .min(1, 'City is required')
+    .min(2, 'City must be at least 2 characters'),
+  state: z
+    .string()
+    .trim()
+    .min(1, 'State is required')
+    .min(2, 'State must be at least 2 characters'),
+  zip: z
+    .string()
+    .trim()
+    .min(1, 'ZIP code is required')
+    .regex(/^\d{5}(-\d{4})?$/, 'ZIP code must be 5 digits (e.g. 90210)'),
+  cardNumber: z
+    .string()
+    .trim()
+    .min(1, 'Card number is required')
+    .refine((val) => {
+      const clean = val.replace(/\D/g, '');
+      return clean.length === 16;
+    }, 'Card number must be 16 digits'),
+  expirationDate: z
+    .string()
+    .trim()
+    .min(1, 'Expiration date is required')
+    .regex(/^(0[1-9]|1[0-2])\/?([0-9]{2})$/, 'Format must be MM/YY')
+    .refine((val) => {
+      const clean = val.replace('/', '');
+      if (clean.length < 4) return false;
+      const month = parseInt(clean.substring(0, 2), 10);
+      const year = parseInt('20' + clean.substring(2, 4), 10);
+      const now = new Date();
+      const currentYear = now.getFullYear();
+      const currentMonth = now.getMonth() + 1;
+      if (year < currentYear) return false;
+      if (year === currentYear && month < currentMonth) return false;
+      return true;
+    }, 'Card expiration date has expired'),
+  cvv: z
+    .string()
+    .trim()
+    .min(1, 'CVV is required')
+    .regex(/^\d{3,4}$/, 'CVV must be 3 or 4 digits')
+});
+
+export type CheckoutFormData = z.infer<typeof checkoutSchema>;
 
 type ShoppingCartProps = {
   isOpen?: boolean;
@@ -32,22 +102,35 @@ export function ShoppingCart({ isOpen: isOpenProp }: ShoppingCartProps) {
   const [discountPercent, setDiscountPercent] = useState(0);
   const [promoMessage, setPromoMessage] = useState<{ type: 'success' | 'danger'; text: string } | null>(null);
 
-  // Form states
-  const [shippingInfo, setShippingInfo] = useState({
-    name: '',
-    address: '',
-    city: '',
-    state: '',
-    zip: ''
-  });
-
-  const [paymentDetails, setPaymentDetails] = useState({
-    cardNumber: '',
-    expirationDate: '',
-    cvv: ''
-  });
-
   const [orderId, setOrderId] = useState('');
+  const [completedOrder, setCompletedOrder] = useState<{
+    id: string;
+    name: string;
+    email: string;
+    total: number;
+  } | null>(null);
+
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    reset,
+    formState: { errors }
+  } = useForm<CheckoutFormData>({
+    resolver: zodResolver(checkoutSchema),
+    mode: 'onTouched',
+    defaultValues: {
+      fullName: '',
+      email: '',
+      address: '',
+      city: '',
+      state: '',
+      zip: '',
+      cardNumber: '',
+      expirationDate: '',
+      cvv: ''
+    }
+  });
 
   const calculateSubtotal = () => {
     return cartItems.reduce((total, cartItem) => {
@@ -73,12 +156,46 @@ export function ShoppingCart({ isOpen: isOpenProp }: ShoppingCartProps) {
     }
   };
 
-  const handleCheckoutSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleCardNumberInput = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const digits = e.target.value.replace(/\D/g, '').slice(0, 16);
+    const formatted = digits.replace(/(\d{4})(?=\d)/g, '$1 ');
+    e.target.value = formatted;
+    setValue('cardNumber', formatted, { shouldValidate: true, shouldDirty: true, shouldTouch: true });
+  };
+
+  const handleExpirationInput = (e: React.ChangeEvent<HTMLInputElement>) => {
+    let digits = e.target.value.replace(/\D/g, '').slice(0, 4);
+    if (digits.length >= 2) {
+      digits = `${digits.slice(0, 2)}/${digits.slice(2)}`;
+    }
+    e.target.value = digits;
+    setValue('expirationDate', digits, { shouldValidate: true, shouldDirty: true, shouldTouch: true });
+  };
+
+  const handleCvvInput = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const digits = e.target.value.replace(/\D/g, '').slice(0, 4);
+    e.target.value = digits;
+    setValue('cvv', digits, { shouldValidate: true, shouldDirty: true, shouldTouch: true });
+  };
+
+  const handleZipInput = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const clean = e.target.value.replace(/[^\d-]/g, '').slice(0, 10);
+    e.target.value = clean;
+    setValue('zip', clean, { shouldValidate: true, shouldDirty: true, shouldTouch: true });
+  };
+
+  const onSubmitCheckout = (data: CheckoutFormData) => {
     const randomId = 'SC-' + Math.floor(100000 + Math.random() * 900000);
     setOrderId(randomId);
+    setCompletedOrder({
+      id: randomId,
+      name: data.fullName,
+      email: data.email,
+      total: finalTotal
+    });
     clearCart();
     setCurrentStep('success');
+    toast.success(`🎉 Order ${randomId} confirmed! Receipt sent to ${data.email}`);
   };
 
   const handleClose = () => {
@@ -90,6 +207,8 @@ export function ShoppingCart({ isOpen: isOpenProp }: ShoppingCartProps) {
         setDiscountPercent(0);
         setPromoInput('');
         setPromoMessage(null);
+        setCompletedOrder(null);
+        reset();
       }, 400);
     }
   };
@@ -137,9 +256,29 @@ export function ShoppingCart({ isOpen: isOpenProp }: ShoppingCartProps) {
             <p className="text-muted small mb-3">
               This demo order has been recorded. No payment was processed.
             </p>
-            <div className="p-3 bg-light rounded-3 border mb-4">
-              <span className="text-muted small d-block mb-1">Order Reference Number</span>
-              <strong className="text-primary fs-5">{orderId}</strong>
+            <div className="p-3 bg-light rounded-3 border mb-4 text-start">
+              <div className="d-flex justify-content-between align-items-center mb-2">
+                <span className="text-muted small">Order Reference:</span>
+                <strong className="text-primary font-monospace">{orderId}</strong>
+              </div>
+              {completedOrder && (
+                <>
+                  <div className="d-flex justify-content-between align-items-center mb-1 small">
+                    <span className="text-muted">Customer:</span>
+                    <span className="fw-semibold text-dark text-truncate ms-2">{completedOrder.name}</span>
+                  </div>
+                  <div className="d-flex justify-content-between align-items-center mb-1 small">
+                    <span className="text-muted">Receipt Sent:</span>
+                    <span className="fw-semibold text-dark text-truncate ms-2" style={{ maxWidth: '180px' }}>
+                      {completedOrder.email}
+                    </span>
+                  </div>
+                  <div className="d-flex justify-content-between align-items-center small border-top pt-2 mt-2">
+                    <span className="text-muted">Total Paid:</span>
+                    <span className="fw-bold text-primary">{formatCurrency(completedOrder.total)}</span>
+                  </div>
+                </>
+              )}
             </div>
             <Button
               variant="primary"
@@ -279,74 +418,116 @@ export function ShoppingCart({ isOpen: isOpenProp }: ShoppingCartProps) {
 
             {/* STEP 2: CHECKOUT FORM */}
             {currentStep === 'checkout' && (
-              <Form onSubmit={handleCheckoutSubmit} className="d-flex flex-column flex-grow-1">
+              <Form onSubmit={handleSubmit(onSubmitCheckout)} noValidate className="d-flex flex-column flex-grow-1">
                 <div style={{ maxHeight: '55vh', overflowY: 'auto', paddingRight: '4px' }}>
+                  {/* Contact / Receipt Section */}
+                  <div className="mb-3">
+                    <div className="d-flex align-items-center gap-2 fw-bold small text-primary mb-2">
+                      <FiMail />
+                      <span>Contact & Receipt</span>
+                    </div>
+                    <Row className="g-2">
+                      <Col xs={12}>
+                        <Form.Group controlId="checkout-full-name">
+                          <Form.Label className="small fw-semibold text-muted mb-1">Full Name</Form.Label>
+                          <Form.Control
+                            size="sm"
+                            type="text"
+                            placeholder="e.g. Alex Morgan"
+                            {...register('fullName')}
+                            isInvalid={!!errors.fullName}
+                          />
+                          <Form.Control.Feedback type="invalid">
+                            {errors.fullName?.message}
+                          </Form.Control.Feedback>
+                        </Form.Group>
+                      </Col>
+                      <Col xs={12}>
+                        <Form.Group controlId="checkout-email">
+                          <Form.Label className="small fw-semibold text-muted mb-1">Email Address</Form.Label>
+                          <Form.Control
+                            size="sm"
+                            type="email"
+                            placeholder="e.g. alex@example.com"
+                            {...register('email')}
+                            isInvalid={!!errors.email}
+                          />
+                          <Form.Control.Feedback type="invalid">
+                            {errors.email?.message}
+                          </Form.Control.Feedback>
+                        </Form.Group>
+                      </Col>
+                    </Row>
+                  </div>
+
                   {/* Shipping Section */}
-                  <div className="mb-4">
+                  <div className="mb-3">
                     <div className="d-flex align-items-center gap-2 fw-bold small text-primary mb-2">
                       <FiMapPin />
                       <span>Shipping Address</span>
                     </div>
                     <Row className="g-2">
                       <Col xs={12}>
-                        <Form.Label htmlFor="shipping-name" className="visually-hidden">Full name</Form.Label>
-                        <Form.Control
-                          id="shipping-name"
-                          size="sm"
-                          required
-                          type="text"
-                          placeholder="Full Name"
-                          value={shippingInfo.name}
-                          onChange={(e) => setShippingInfo({ ...shippingInfo, name: e.target.value })}
-                        />
-                      </Col>
-                      <Col xs={12}>
-                        <Form.Label htmlFor="shipping-address" className="visually-hidden">Street address</Form.Label>
-                        <Form.Control
-                          id="shipping-address"
-                          size="sm"
-                          required
-                          type="text"
-                          placeholder="Street Address"
-                          value={shippingInfo.address}
-                          onChange={(e) => setShippingInfo({ ...shippingInfo, address: e.target.value })}
-                        />
+                        <Form.Group controlId="checkout-address">
+                          <Form.Label className="small fw-semibold text-muted mb-1">Street Address</Form.Label>
+                          <Form.Control
+                            size="sm"
+                            type="text"
+                            placeholder="123 Main St, Apt 4B"
+                            {...register('address')}
+                            isInvalid={!!errors.address}
+                          />
+                          <Form.Control.Feedback type="invalid">
+                            {errors.address?.message}
+                          </Form.Control.Feedback>
+                        </Form.Group>
                       </Col>
                       <Col xs={5}>
-                        <Form.Label htmlFor="shipping-city" className="visually-hidden">City</Form.Label>
-                        <Form.Control
-                          id="shipping-city"
-                          size="sm"
-                          required
-                          type="text"
-                          placeholder="City"
-                          value={shippingInfo.city}
-                          onChange={(e) => setShippingInfo({ ...shippingInfo, city: e.target.value })}
-                        />
+                        <Form.Group controlId="checkout-city">
+                          <Form.Label className="small fw-semibold text-muted mb-1">City</Form.Label>
+                          <Form.Control
+                            size="sm"
+                            type="text"
+                            placeholder="City"
+                            {...register('city')}
+                            isInvalid={!!errors.city}
+                          />
+                          <Form.Control.Feedback type="invalid">
+                            {errors.city?.message}
+                          </Form.Control.Feedback>
+                        </Form.Group>
                       </Col>
                       <Col xs={3}>
-                        <Form.Label htmlFor="shipping-state" className="visually-hidden">State</Form.Label>
-                        <Form.Control
-                          id="shipping-state"
-                          size="sm"
-                          required
-                          type="text"
-                          placeholder="State"
-                          value={shippingInfo.state}
-                          onChange={(e) => setShippingInfo({ ...shippingInfo, state: e.target.value })}
-                        />
+                        <Form.Group controlId="checkout-state">
+                          <Form.Label className="small fw-semibold text-muted mb-1">State</Form.Label>
+                          <Form.Control
+                            size="sm"
+                            type="text"
+                            placeholder="State"
+                            {...register('state')}
+                            isInvalid={!!errors.state}
+                          />
+                          <Form.Control.Feedback type="invalid">
+                            {errors.state?.message}
+                          </Form.Control.Feedback>
+                        </Form.Group>
                       </Col>
                       <Col xs={4}>
-                        <Form.Label htmlFor="shipping-zip" className="visually-hidden">ZIP code</Form.Label>
-                        <Form.Control
-                          id="shipping-zip"
-                          size="sm"
-                          required
-                          type="text"
-                          placeholder="ZIP Code"
-                          value={shippingInfo.zip}
-                          onChange={(e) => setShippingInfo({ ...shippingInfo, zip: e.target.value })}
-                        />
+                        <Form.Group controlId="checkout-zip">
+                          <Form.Label className="small fw-semibold text-muted mb-1">ZIP Code</Form.Label>
+                          <Form.Control
+                            size="sm"
+                            type="text"
+                            placeholder="90210"
+                            maxLength={10}
+                            {...register('zip')}
+                            onChange={handleZipInput}
+                            isInvalid={!!errors.zip}
+                          />
+                          <Form.Control.Feedback type="invalid">
+                            {errors.zip?.message}
+                          </Form.Control.Feedback>
+                        </Form.Group>
                       </Col>
                     </Row>
                   </div>
@@ -365,43 +546,55 @@ export function ShoppingCart({ isOpen: isOpenProp }: ShoppingCartProps) {
                     </div>
                     <Row className="g-2">
                       <Col xs={12}>
-                        <Form.Label htmlFor="card-number" className="visually-hidden">Card number</Form.Label>
-                        <Form.Control
-                          id="card-number"
-                          size="sm"
-                          required
-                          type="text"
-                          maxLength={19}
-                          placeholder="Card Number (16 Digits)"
-                          value={paymentDetails.cardNumber}
-                          onChange={(e) => setPaymentDetails({ ...paymentDetails, cardNumber: e.target.value })}
-                        />
+                        <Form.Group controlId="checkout-card-number">
+                          <Form.Label className="small fw-semibold text-muted mb-1">Card Number (16 Digits)</Form.Label>
+                          <Form.Control
+                            size="sm"
+                            type="text"
+                            maxLength={19}
+                            placeholder="4111 2222 3333 4444"
+                            {...register('cardNumber')}
+                            onChange={handleCardNumberInput}
+                            isInvalid={!!errors.cardNumber}
+                          />
+                          <Form.Control.Feedback type="invalid">
+                            {errors.cardNumber?.message}
+                          </Form.Control.Feedback>
+                        </Form.Group>
                       </Col>
                       <Col xs={6}>
-                        <Form.Label htmlFor="expiration-date" className="visually-hidden">Expiration date</Form.Label>
-                        <Form.Control
-                          id="expiration-date"
-                          size="sm"
-                          required
-                          type="text"
-                          placeholder="MM / YY"
-                          maxLength={5}
-                          value={paymentDetails.expirationDate}
-                          onChange={(e) => setPaymentDetails({ ...paymentDetails, expirationDate: e.target.value })}
-                        />
+                        <Form.Group controlId="checkout-expiration-date">
+                          <Form.Label className="small fw-semibold text-muted mb-1">Expires (MM/YY)</Form.Label>
+                          <Form.Control
+                            size="sm"
+                            type="text"
+                            placeholder="MM / YY"
+                            maxLength={5}
+                            {...register('expirationDate')}
+                            onChange={handleExpirationInput}
+                            isInvalid={!!errors.expirationDate}
+                          />
+                          <Form.Control.Feedback type="invalid">
+                            {errors.expirationDate?.message}
+                          </Form.Control.Feedback>
+                        </Form.Group>
                       </Col>
                       <Col xs={6}>
-                        <Form.Label htmlFor="card-cvv" className="visually-hidden">Card security code</Form.Label>
-                        <Form.Control
-                          id="card-cvv"
-                          size="sm"
-                          required
-                          type="password"
-                          placeholder="CVV"
-                          maxLength={4}
-                          value={paymentDetails.cvv}
-                          onChange={(e) => setPaymentDetails({ ...paymentDetails, cvv: e.target.value })}
-                        />
+                        <Form.Group controlId="checkout-cvv">
+                          <Form.Label className="small fw-semibold text-muted mb-1">CVV</Form.Label>
+                          <Form.Control
+                            size="sm"
+                            type="password"
+                            placeholder="123"
+                            maxLength={4}
+                            {...register('cvv')}
+                            onChange={handleCvvInput}
+                            isInvalid={!!errors.cvv}
+                          />
+                          <Form.Control.Feedback type="invalid">
+                            {errors.cvv?.message}
+                          </Form.Control.Feedback>
+                        </Form.Group>
                       </Col>
                     </Row>
                   </div>
