@@ -1,8 +1,8 @@
-import { useEffect, useMemo, useState } from 'react';
-import { Col, Row, Form, Button, Offcanvas } from 'react-bootstrap';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { Col, Row, Form, Button, Offcanvas, Pagination } from 'react-bootstrap';
 import { StoreItem } from '../components/StoreItem';
 import storeItems from '../data/items.json';
-import { FiFilter, FiRotateCcw, FiSearch, FiSliders } from 'react-icons/fi';
+import { FiFilter, FiRotateCcw, FiSearch, FiSliders, FiChevronLeft, FiChevronRight } from 'react-icons/fi';
 import { RiShoppingBag3Fill } from 'react-icons/ri';
 
 type Item = {
@@ -21,6 +21,11 @@ export function Store() {
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [debouncedSearchQuery, setDebouncedSearchQuery] = useState('');
   const [showMobileFilter, setShowMobileFilter] = useState<boolean>(false);
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const [itemsPerPage, setItemsPerPage] = useState<number>(6);
+  const [sortBy, setSortBy] = useState<string>('featured');
+
+  const productGridRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const timeoutId = window.setTimeout(() => {
@@ -39,11 +44,65 @@ export function Store() {
     return matchesCategory && matchesRating && matchesPrice && matchesSearch;
   }), [debouncedSearchQuery, maxPrice, minRating, selectedCategory]);
 
+  const sortedItems = useMemo(() => {
+    const items = [...filteredItems];
+    if (sortBy === 'price-asc') {
+      items.sort((a, b) => a.price - b.price);
+    } else if (sortBy === 'price-desc') {
+      items.sort((a, b) => b.price - a.price);
+    } else if (sortBy === 'rating-desc') {
+      items.sort((a, b) => b.rating - a.rating);
+    }
+    return items;
+  }, [filteredItems, sortBy]);
+
+  const totalPages = Math.max(1, Math.ceil(sortedItems.length / itemsPerPage));
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const paginatedItems = useMemo(() => {
+    return sortedItems.slice(startIndex, startIndex + itemsPerPage);
+  }, [sortedItems, startIndex, itemsPerPage]);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [debouncedSearchQuery, selectedCategory, minRating, maxPrice, sortBy, itemsPerPage]);
+
+  const handlePageChange = (page: number) => {
+    if (page < 1 || page > totalPages || page === currentPage) return;
+    setCurrentPage(page);
+    if (productGridRef.current) {
+      productGridRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  };
+
+  const getPageNumbers = () => {
+    const pages: number[] = [];
+    if (totalPages <= 5) {
+      for (let i = 1; i <= totalPages; i++) pages.push(i);
+    } else {
+      pages.push(1);
+      if (currentPage > 3) {
+        pages.push(-1);
+      }
+      const start = Math.max(2, currentPage - 1);
+      const end = Math.min(totalPages - 1, currentPage + 1);
+      for (let i = start; i <= end; i++) {
+        pages.push(i);
+      }
+      if (currentPage < totalPages - 2) {
+        pages.push(-1);
+      }
+      pages.push(totalPages);
+    }
+    return pages;
+  };
+
   const clearFilters = () => {
     setSelectedCategory('all');
     setMinRating(0);
     setMaxPrice(1500);
     setSearchQuery('');
+    setSortBy('featured');
+    setCurrentPage(1);
   };
 
   const activeFilterCount = (selectedCategory !== 'all' ? 1 : 0) +
@@ -164,35 +223,68 @@ export function Store() {
         </Col>
 
         {/* 3. PRODUCT GRID */}
-        <Col xs={12} lg={9}>
-          <div className="d-flex justify-content-between align-items-center mb-4 bg-white p-3 rounded-4 border shadow-sm flex-wrap gap-2">
+        <Col xs={12} lg={9} ref={productGridRef}>
+          <div className="d-flex justify-content-between align-items-center mb-4 bg-white p-3 rounded-4 border shadow-sm flex-wrap gap-3">
             <div>
               <h5 className="mb-0 fw-bold text-dark">
                 {categories.find(c => c.id === selectedCategory)?.label || 'Products'}
               </h5>
               <span className="text-muted small fw-semibold">
-                Showing {filteredItems.length} result{filteredItems.length !== 1 ? 's' : ''}
+                Showing {sortedItems.length === 0 ? '0' : `${startIndex + 1}–${Math.min(startIndex + itemsPerPage, sortedItems.length)}`} of {sortedItems.length} product{sortedItems.length !== 1 ? 's' : ''}
               </span>
             </div>
 
-            <div className="d-lg-none">
-              <Button
-                variant="outline-primary"
-                className="d-flex align-items-center gap-2 rounded-pill px-3 py-2 fw-semibold"
-                onClick={() => setShowMobileFilter(true)}
-              >
-                <FiSliders size={16} />
-                <span>Filters</span>
-                {activeFilterCount > 0 && (
-                  <span className="badge bg-primary text-white rounded-pill ms-1">
-                    {activeFilterCount}
-                  </span>
-                )}
-              </Button>
+            <div className="d-flex align-items-center gap-2 flex-wrap">
+              <div className="d-lg-none">
+                <Button
+                  variant="outline-primary"
+                  className="d-flex align-items-center gap-1 rounded-pill px-3 py-1 fw-semibold btn-sm"
+                  onClick={() => setShowMobileFilter(true)}
+                >
+                  <FiSliders size={14} />
+                  <span>Filters</span>
+                  {activeFilterCount > 0 && (
+                    <span className="badge bg-primary text-white rounded-pill ms-1">
+                      {activeFilterCount}
+                    </span>
+                  )}
+                </Button>
+              </div>
+
+              <div className="d-flex align-items-center gap-1">
+                <Form.Select
+                  size="sm"
+                  className="rounded-pill px-3 py-1"
+                  style={{ width: 'auto', minWidth: '150px' }}
+                  value={sortBy}
+                  onChange={(e) => setSortBy(e.target.value)}
+                  aria-label="Sort products"
+                >
+                  <option value="featured">Featured</option>
+                  <option value="price-asc">Price: Low to High</option>
+                  <option value="price-desc">Price: High to Low</option>
+                  <option value="rating-desc">Highest Rated</option>
+                </Form.Select>
+              </div>
+
+              <div className="d-flex align-items-center gap-1">
+                <Form.Select
+                  size="sm"
+                  className="rounded-pill px-3 py-1"
+                  style={{ width: 'auto' }}
+                  value={itemsPerPage}
+                  onChange={(e) => setItemsPerPage(Number(e.target.value))}
+                  aria-label="Items per page"
+                >
+                  <option value={6}>6 / page</option>
+                  <option value={9}>9 / page</option>
+                  <option value={12}>12 / page</option>
+                </Form.Select>
+              </div>
             </div>
           </div>
 
-          {filteredItems.length === 0 ? (
+          {sortedItems.length === 0 ? (
             <div className="text-center py-5 bg-white rounded-4 border shadow-sm">
               <div className="mb-3" style={{ fontSize: '3rem', color: '#cbd5e1' }}>
                 <FiFilter />
@@ -206,20 +298,63 @@ export function Store() {
               </Button>
             </div>
           ) : (
-            <Row xs={1} sm={2} lg={3} className="g-4">
-              {filteredItems.map((item) => (
-                <Col key={item.id}>
-                  <StoreItem
-                    id={item.id}
-                    name={item.name}
-                    price={item.price}
-                    rating={item.rating}
-                    imgUrl={item.imgUrl}
-                    category={item.category}
-                  />
-                </Col>
-              ))}
-            </Row>
+            <>
+              <Row xs={1} sm={2} lg={3} className="g-4">
+                {paginatedItems.map((item) => (
+                  <Col key={item.id}>
+                    <StoreItem
+                      id={item.id}
+                      name={item.name}
+                      price={item.price}
+                      rating={item.rating}
+                      imgUrl={item.imgUrl}
+                      category={item.category}
+                    />
+                  </Col>
+                ))}
+              </Row>
+
+              {totalPages > 1 && (
+                <div className="d-flex flex-column flex-sm-row justify-content-between align-items-center mt-5 pt-3 border-top gap-3 store-pagination-container">
+                  <div className="text-muted small">
+                    Page <span className="fw-bold text-dark">{currentPage}</span> of <span className="fw-bold text-dark">{totalPages}</span>
+                  </div>
+                  <Pagination className="mb-0 custom-store-pagination">
+                    <Pagination.Prev
+                      onClick={() => handlePageChange(currentPage - 1)}
+                      disabled={currentPage === 1}
+                      aria-label="Previous page"
+                    >
+                      <FiChevronLeft size={16} className="me-1" />
+                      <span className="d-none d-sm-inline">Prev</span>
+                    </Pagination.Prev>
+
+                    {getPageNumbers().map((pageNum, idx) =>
+                      pageNum === -1 ? (
+                        <Pagination.Ellipsis key={`ellipsis-${idx}`} disabled />
+                      ) : (
+                        <Pagination.Item
+                          key={pageNum}
+                          active={pageNum === currentPage}
+                          onClick={() => handlePageChange(pageNum)}
+                        >
+                          {pageNum}
+                        </Pagination.Item>
+                      )
+                    )}
+
+                    <Pagination.Next
+                      onClick={() => handlePageChange(currentPage + 1)}
+                      disabled={currentPage === totalPages}
+                      aria-label="Next page"
+                    >
+                      <span className="d-none d-sm-inline">Next</span>
+                      <FiChevronRight size={16} className="ms-1" />
+                    </Pagination.Next>
+                  </Pagination>
+                </div>
+              )}
+            </>
           )}
         </Col>
       </Row>
@@ -258,7 +393,7 @@ export function Store() {
               className="rounded-pill flex-grow-1 py-2 fw-semibold shadow"
               onClick={() => setShowMobileFilter(false)}
             >
-              Show {filteredItems.length} Results
+              Show {sortedItems.length} Results
             </Button>
           </div>
         </Offcanvas.Body>
