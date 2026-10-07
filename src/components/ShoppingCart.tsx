@@ -4,6 +4,7 @@ import { useShoppingCart } from '../context/ShoppingCartContext';
 import { CartItem } from './CartItem';
 import { formatCurrency } from '../utilities/formatCurrency';
 import storeItems from '../data/items.json';
+import { AVAILABLE_COUPONS, CouponDefinition } from '../data/coupons';
 import {
   FiShoppingBag,
   FiArrowRight,
@@ -99,8 +100,8 @@ export function ShoppingCart({ isOpen: isOpenProp }: ShoppingCartProps) {
 
   // Promo code state
   const [promoInput, setPromoInput] = useState('');
-  const [discountPercent, setDiscountPercent] = useState(0);
-  const [promoMessage, setPromoMessage] = useState<{ type: 'success' | 'danger'; text: string } | null>(null);
+  const [appliedCoupon, setAppliedCoupon] = useState<CouponDefinition | null>(null);
+  const [promoMessage, setPromoMessage] = useState<{ type: 'success' | 'danger' | 'info'; text: string } | null>(null);
 
   const [orderId, setOrderId] = useState('');
   const [completedOrder, setCompletedOrder] = useState<{
@@ -140,20 +141,92 @@ export function ShoppingCart({ isOpen: isOpenProp }: ShoppingCartProps) {
   };
 
   const subtotal = calculateSubtotal();
-  const discountAmount = subtotal * (discountPercent / 100);
+  const isCouponOrderMet = !appliedCoupon?.minOrder || subtotal >= appliedCoupon.minOrder;
+
+  const calculateDiscount = () => {
+    if (!appliedCoupon || !isCouponOrderMet) return 0;
+    if (appliedCoupon.type === 'percent') {
+      return (subtotal * appliedCoupon.value) / 100;
+    }
+    if (appliedCoupon.type === 'flat') {
+      return Math.min(subtotal, appliedCoupon.value);
+    }
+    if (appliedCoupon.type === 'shipping') {
+      return Math.min(subtotal, appliedCoupon.value);
+    }
+    return 0;
+  };
+
+  const discountAmount = calculateDiscount();
   const finalTotal = Math.max(0, subtotal - discountAmount);
 
-  const handleApplyPromo = (e: React.FormEvent) => {
-    e.preventDefault();
-    const cleanCode = promoInput.trim().toUpperCase();
-    if (cleanCode === 'SHOPCART15') {
-      setDiscountPercent(15);
-      setPromoMessage({ type: 'success', text: '15% VIP Discount applied successfully!' });
-    } else if (cleanCode === '') {
+  const handleApplyPromo = (e?: React.FormEvent, codeToApply?: string) => {
+    if (e) e.preventDefault();
+    const rawCode = codeToApply ?? promoInput;
+    const cleanCode = rawCode.trim().toUpperCase();
+
+    if (cleanCode === '') {
       setPromoMessage(null);
-    } else {
-      setPromoMessage({ type: 'danger', text: 'Invalid promo code. Try "SHOPCART15".' });
+      setAppliedCoupon(null);
+      return;
     }
+
+    const matchedCoupon = AVAILABLE_COUPONS.find((c) => c.code === cleanCode);
+
+    if (!matchedCoupon) {
+      setPromoMessage({
+        type: 'danger',
+        text: 'Invalid promo code. Please tap an available coupon below.'
+      });
+      return;
+    }
+
+    if (matchedCoupon.minOrder && subtotal < matchedCoupon.minOrder) {
+      const diff = matchedCoupon.minOrder - subtotal;
+      setPromoMessage({
+        type: 'danger',
+        text: `${matchedCoupon.code} requires a minimum order of ${formatCurrency(matchedCoupon.minOrder)}. Add ${formatCurrency(diff)} more to apply!`
+      });
+      toast.warning(`${matchedCoupon.code} requires min. order of ${formatCurrency(matchedCoupon.minOrder)}`);
+      return;
+    }
+
+    setAppliedCoupon(matchedCoupon);
+    setPromoInput(matchedCoupon.code);
+
+    const benefitText =
+      matchedCoupon.type === 'percent'
+        ? `${matchedCoupon.value}% discount applied!`
+        : matchedCoupon.type === 'flat'
+        ? `${formatCurrency(matchedCoupon.value)} discount applied!`
+        : 'Free Express Delivery credit applied!';
+
+    setPromoMessage({
+      type: 'success',
+      text: `🎉 ${matchedCoupon.code} applied! (${benefitText})`
+    });
+
+    toast.success(`Coupon ${matchedCoupon.code} applied! ${benefitText}`, {
+      icon: <FiTag size={18} color="#4f46e5" />,
+      autoClose: 2500,
+    });
+  };
+
+  const handleRemoveCoupon = () => {
+    setAppliedCoupon(null);
+    setPromoInput('');
+    setPromoMessage({
+      type: 'info',
+      text: 'Coupon removed.'
+    });
+  };
+
+  const handleSelectCoupon = (coupon: CouponDefinition) => {
+    if (appliedCoupon?.code === coupon.code) {
+      handleRemoveCoupon();
+      return;
+    }
+    handleApplyPromo(undefined, coupon.code);
   };
 
   const handleCardNumberInput = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -204,7 +277,7 @@ export function ShoppingCart({ isOpen: isOpenProp }: ShoppingCartProps) {
     if (currentStep === 'success') {
       setTimeout(() => {
         setCurrentStep('cart');
-        setDiscountPercent(0);
+        setAppliedCoupon(null);
         setPromoInput('');
         setPromoMessage(null);
         setCompletedOrder(null);
@@ -347,33 +420,130 @@ export function ShoppingCart({ isOpen: isOpenProp }: ShoppingCartProps) {
 
                 {/* Promo Code Box */}
                 <div className="p-3 bg-light rounded-3 border mb-3">
-                  <div className="d-flex align-items-center gap-1 small fw-bold text-dark mb-2">
-                    <FiTag className="text-primary" />
-                    <span>Have a Promo Code?</span>
+                  <div className="d-flex align-items-center justify-content-between mb-2">
+                    <div className="d-flex align-items-center gap-1 small fw-bold text-dark">
+                      <FiTag className="text-primary" />
+                      <span>Have a Promo Code?</span>
+                    </div>
+                    {appliedCoupon && (
+                      <button
+                        type="button"
+                        className="btn btn-link p-0 text-danger small text-decoration-none fw-semibold"
+                        style={{ fontSize: '0.78rem' }}
+                        onClick={handleRemoveCoupon}
+                      >
+                        Remove
+                      </button>
+                    )}
                   </div>
-                  <form onSubmit={handleApplyPromo} className="promo-apply-group">
+
+                  <form onSubmit={(e) => handleApplyPromo(e)} className="promo-apply-group mb-2">
                     <label htmlFor="promo-code" className="visually-hidden">Promo code</label>
                     <Form.Control
                       id="promo-code"
                       size="sm"
                       type="text"
-                      placeholder="e.g. SHOPCART15"
+                      placeholder="e.g. WELCOME10"
                       value={promoInput}
                       onChange={(e) => setPromoInput(e.target.value)}
+                      className="text-uppercase fw-semibold"
                     />
-                    <Button size="sm" variant="outline-primary" type="submit" className="fw-bold px-3">
-                      Apply
+                    <Button
+                      size="sm"
+                      variant={appliedCoupon ? "success" : "outline-primary"}
+                      type="submit"
+                      className="fw-bold px-3 text-nowrap"
+                    >
+                      {appliedCoupon ? "Applied ✓" : "Apply"}
                     </Button>
                   </form>
+
                   {promoMessage && (
                     <div
-                      className={`small mt-2 fw-semibold ${
-                        promoMessage.type === 'success' ? 'text-success' : 'text-danger'
+                      className={`small mb-2 fw-semibold ${
+                        promoMessage.type === 'success'
+                          ? 'text-success'
+                          : promoMessage.type === 'info'
+                          ? 'text-primary'
+                          : 'text-danger'
                       }`}
+                      style={{ fontSize: '0.8rem' }}
                     >
                       {promoMessage.text}
                     </div>
                   )}
+
+                  {/* Available Coupons Tags */}
+                  <div className="pt-2 border-top">
+                    <div className="d-flex align-items-center justify-content-between mb-2">
+                      <span className="small text-muted fw-bold" style={{ fontSize: '0.72rem', letterSpacing: '0.5px' }}>
+                        AVAILABLE COUPONS (TAP TO APPLY)
+                      </span>
+                      <span className="badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-25" style={{ fontSize: '0.68rem' }}>
+                        {AVAILABLE_COUPONS.length} offers
+                      </span>
+                    </div>
+
+                    <div className="d-flex flex-column gap-2 available-coupons-list">
+                      {AVAILABLE_COUPONS.map((coupon) => {
+                        const isApplied = appliedCoupon?.code === coupon.code;
+                        const isEligible = !coupon.minOrder || subtotal >= coupon.minOrder;
+
+                        return (
+                          <div
+                            key={coupon.code}
+                            className={`available-coupon-tag ${isApplied ? 'applied' : ''} ${!isEligible ? 'ineligible' : ''}`}
+                            onClick={() => handleSelectCoupon(coupon)}
+                            role="button"
+                            tabIndex={0}
+                            onKeyDown={(e) => {
+                              if (e.key === 'Enter' || e.key === ' ') {
+                                e.preventDefault();
+                                handleSelectCoupon(coupon);
+                              }
+                            }}
+                            title={
+                              !isEligible
+                                ? `Requires minimum order of ${formatCurrency(coupon.minOrder!)}`
+                                : isApplied
+                                ? `Click to remove ${coupon.code}`
+                                : `Click to apply ${coupon.code}`
+                            }
+                          >
+                            <div className="d-flex align-items-center justify-content-between w-100">
+                              <div className="d-flex align-items-center gap-2">
+                                <span className="coupon-code-badge font-monospace">
+                                  <FiTag size={11} className="me-1" />
+                                  {coupon.code}
+                                </span>
+                                <span className="coupon-benefit-pill">
+                                  {coupon.label}
+                                </span>
+                              </div>
+                              <div>
+                                {isApplied ? (
+                                  <span className="coupon-action-badge applied">
+                                    Applied ✓
+                                  </span>
+                                ) : !isEligible ? (
+                                  <span className="coupon-action-badge locked">
+                                    Min. {formatCurrency(coupon.minOrder!)}
+                                  </span>
+                                ) : (
+                                  <span className="coupon-action-badge apply-btn">
+                                    Apply
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+                            <div className="coupon-desc text-muted mt-1" style={{ fontSize: '0.72rem' }}>
+                              {coupon.description}
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
                 </div>
 
                 {/* Cost Breakdown */}
@@ -383,11 +553,32 @@ export function ShoppingCart({ isOpen: isOpenProp }: ShoppingCartProps) {
                     <span className="fw-semibold text-dark">{formatCurrency(subtotal)}</span>
                   </div>
 
-                  {discountPercent > 0 && (
-                    <div className="d-flex justify-content-between small text-success mb-1 fw-semibold">
-                      <span>VIP Promo ({discountPercent}%)</span>
-                      <span>-{formatCurrency(discountAmount)}</span>
-                    </div>
+                  {appliedCoupon && (
+                    isCouponOrderMet && discountAmount > 0 ? (
+                      <div className="d-flex justify-content-between small text-success mb-1 fw-semibold">
+                        <span className="d-flex align-items-center gap-1">
+                          <FiTag size={13} />
+                          <span>
+                            {appliedCoupon.code} (
+                            {appliedCoupon.type === 'percent'
+                              ? `${appliedCoupon.value}%`
+                              : appliedCoupon.type === 'flat'
+                              ? formatCurrency(appliedCoupon.value)
+                              : 'Free Delivery'}
+                            )
+                          </span>
+                        </span>
+                        <span>-{formatCurrency(discountAmount)}</span>
+                      </div>
+                    ) : (
+                      <div className="d-flex justify-content-between small text-warning mb-1 fw-semibold">
+                        <span className="d-flex align-items-center gap-1">
+                          <FiTag size={13} />
+                          <span>{appliedCoupon.code} (Needs {formatCurrency(appliedCoupon.minOrder!)})</span>
+                        </span>
+                        <span>$0.00</span>
+                      </div>
+                    )
                   )}
 
                   <div className="d-flex justify-content-between small text-muted mb-2">
@@ -395,7 +586,14 @@ export function ShoppingCart({ isOpen: isOpenProp }: ShoppingCartProps) {
                       <FiTruck size={14} className="text-primary" />
                       <span>Express Shipping</span>
                     </span>
-                    <span className="text-success fw-bold">FREE</span>
+                    {appliedCoupon?.code === 'FREESHIP' ? (
+                      <span className="text-success fw-bold d-flex align-items-center gap-1">
+                        <span className="text-decoration-line-through text-muted small" style={{ fontSize: '0.75rem' }}>$15.00</span>
+                        <span>FREE</span>
+                      </span>
+                    ) : (
+                      <span className="text-success fw-bold">FREE</span>
+                    )}
                   </div>
 
                   <div className="d-flex justify-content-between fs-5 fw-bold text-dark border-top pt-2">
@@ -603,7 +801,14 @@ export function ShoppingCart({ isOpen: isOpenProp }: ShoppingCartProps) {
                 {/* Final Total and Submit */}
                 <div className="mt-auto pt-3 border-top">
                   <div className="d-flex justify-content-between align-items-center mb-3">
-                    <span className="text-muted small">Total Due:</span>
+                    <div>
+                      <span className="text-muted small d-block">Total Due:</span>
+                      {appliedCoupon && isCouponOrderMet && discountAmount > 0 && (
+                        <span className="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25" style={{ fontSize: '0.72rem' }}>
+                          🏷️ {appliedCoupon.code} (-{formatCurrency(discountAmount)})
+                        </span>
+                      )}
+                    </div>
                     <span className="fs-5 fw-bold text-primary">{formatCurrency(finalTotal)}</span>
                   </div>
 
