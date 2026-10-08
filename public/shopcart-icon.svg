@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <defs>
+    <linearGradient id="bagGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#4f46e5"/>
+      <stop offset="50%" stop-color="#7c3aed"/>
+      <stop offset="100%" stop-color="#06b6d4"/>
+    </linearGradient>
+    <filter id="bagShadow" x="-10%" y="-10%" width="120%" height="125%" filterUnits="userSpaceOnUse">
+      <feDropShadow dx="0" dy="12" stdDeviation="16" flood-color="#1e1b4b" flood-opacity="0.3"/>
+    </filter>
+  </defs>
+  <!-- Background Badge -->
+  <rect width="512" height="512" rx="128" fill="url(#bagGradient)" />
+  
+  <!-- Bag Handle -->
+  <path d="M192 200 V150 C192 114 220 86 256 86 C292 86 320 114 320 150 V200" fill="none" stroke="#ffffff" stroke-width="26" stroke-linecap="round" stroke-linejoin="round" />
+  
+  <!-- Shopping Bag Body -->
+  <path d="M142 195 H370 C382 195 391 205 390 217 L368 405 C367 416 358 424 347 424 H165 C154 424 145 416 144 405 L122 217 C121 205 130 195 142 195 Z" fill="#ffffff" filter="url(#bagShadow)" />
+  
+  <!-- Bag Inner Fold Line -->
+  <path d="M165 240 Q256 265 347 240" fill="none" stroke="#e0e7ff" stroke-width="8" stroke-linecap="round" />
+  
+  <!-- Center Star Accent -->
+  <circle cx="256" cy="325" r="32" fill="#eef2ff" />
+  <path d="M256 295 L263 318 L286 325 L263 332 L256 355 L249 332 L226 325 L249 318 Z" fill="url(#bagGradient)" />
+</svg>
+
