@@ -525,54 +525,6 @@ export function Home() {
           )}
         </div>
       </section>
-
-      {/* 8. FOOTER */}
-      <footer className="shopcart-footer">
-        <Row className="g-4 pb-4">
-          <Col lg={4} md={6} xs={12} className="text-center text-md-start">
-            <div className="d-flex align-items-center justify-content-center justify-content-md-start gap-2 mb-2">
-              <RiShoppingBag3Fill size={28} color="#818cf8" />
-              <span className="fs-4 fw-bold text-white">ShopCart</span>
-            </div>
-            <p className="small text-slate-400 mx-auto mx-md-0" style={{ color: '#94a3b8', maxWidth: '320px' }}>
-              Your destination for curated sneakers, powerhouse computing, flagship mobile phones, and timeless books.
-            </p>
-          </Col>
-
-          <Col lg={2} md={3} sm={6} xs={6} className="text-start">
-            <h6 className="text-white fw-bold mb-3">Explore</h6>
-            <Link to="/" className="footer-link">Home</Link>
-            <Link to="/store" className="footer-link">All Products</Link>
-            <Link to="/about" className="footer-link">About Us</Link>
-            <Link to="/contact" className="footer-link">Contact</Link>
-          </Col>
-
-          <Col lg={3} md={3} sm={6} xs={6} className="text-start">
-            <h6 className="text-white fw-bold mb-3">Categories</h6>
-            <span className="footer-link" style={{ cursor: 'pointer' }} onClick={() => setSelectedCategory('shoes')}>Footwear</span>
-            <span className="footer-link" style={{ cursor: 'pointer' }} onClick={() => setSelectedCategory('laptop')}>Laptops & PCs</span>
-            <span className="footer-link" style={{ cursor: 'pointer' }} onClick={() => setSelectedCategory('phone')}>Smartphones</span>
-            <span className="footer-link" style={{ cursor: 'pointer' }} onClick={() => setSelectedCategory('books')}>Books & Reads</span>
-          </Col>
-
-          <Col lg={3} md={6} xs={12} className="text-center text-md-start">
-            <h6 className="text-white fw-bold mb-3">Safe & Guaranteed</h6>
-            <p className="small mx-auto mx-md-0" style={{ color: '#94a3b8', maxWidth: '320px' }}>
-              All purchases are backed by our 100% money-back guarantee and 24/7 dedicated support team.
-            </p>
-            <div className="d-flex justify-content-center justify-content-md-start gap-2 mt-3 flex-wrap">
-              <span className="badge bg-secondary">Visa</span>
-              <span className="badge bg-secondary">MasterCard</span>
-              <span className="badge bg-secondary">Apple Pay</span>
-              <span className="badge bg-secondary">PayPal</span>
-            </div>
-          </Col>
-        </Row>
-
-        <div className="border-top border-secondary pt-3 text-center small text-slate-500" style={{ color: '#64748b' }}>
-          © {new Date().getFullYear()} ShopCart Inc. Designed & Built with passion. All rights reserved.
-        </div>
-      </footer>
     </div>
   );
 }
