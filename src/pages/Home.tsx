@@ -394,7 +394,7 @@ export function Home() {
                   Unleash power with M2 Silicon and Dell performance builds.
                 </p>
               </div>
-              <Link to="/store" className="text-white fw-bold d-inline-flex align-items-center gap-1 text-decoration-none small">
+              <Link to="/store?category=laptop" className="text-white fw-bold d-inline-flex align-items-center gap-1 text-decoration-none small">
                 Shop Computing <FiArrowRight />
               </Link>
             </div>
@@ -416,7 +416,7 @@ export function Home() {
                   Jordan retros & Adidas originals engineered for trendsetters.
                 </p>
               </div>
-              <Link to="/store" className="text-white fw-bold d-inline-flex align-items-center gap-1 text-decoration-none small">
+              <Link to="/store?category=shoes" className="text-white fw-bold d-inline-flex align-items-center gap-1 text-decoration-none small">
                 Shop Footwear <FiArrowRight />
               </Link>
             </div>
@@ -438,7 +438,7 @@ export function Home() {
                   Discover philosophy, purpose, and mastery with curated classics.
                 </p>
               </div>
-              <Link to="/store" className="text-white fw-bold d-inline-flex align-items-center gap-1 text-decoration-none small">
+              <Link to="/store?category=books" className="text-white fw-bold d-inline-flex align-items-center gap-1 text-decoration-none small">
                 Shop Books <FiArrowRight />
               </Link>
             </div>

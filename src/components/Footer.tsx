@@ -41,10 +41,10 @@ export function Footer() {
 
           <Col lg={3} md={3} sm={6} xs={6} className="text-start">
             <h6 className="text-white fw-bold mb-3">Categories</h6>
-            <Link to="/store" className="footer-link">Footwear & Sneakers</Link>
-            <Link to="/store" className="footer-link">Laptops & PCs</Link>
-            <Link to="/store" className="footer-link">Smartphones</Link>
-            <Link to="/store" className="footer-link">Books & Literature</Link>
+            <Link to="/store?category=shoes" className="footer-link">Footwear & Sneakers</Link>
+            <Link to="/store?category=laptop" className="footer-link">Laptops & PCs</Link>
+            <Link to="/store?category=phone" className="footer-link">Smartphones</Link>
+            <Link to="/store?category=books" className="footer-link">Books & Literature</Link>
           </Col>
 
           <Col lg={3} md={6} xs={12} className="text-center text-md-start">

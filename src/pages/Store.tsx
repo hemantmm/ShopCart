@@ -1,8 +1,18 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState, useCallback } from 'react';
 import { Col, Row, Form, Button, Offcanvas, Pagination } from 'react-bootstrap';
+import { useSearchParams } from 'react-router-dom';
 import { StoreItem } from '../components/StoreItem';
 import storeItems from '../data/items.json';
-import { FiFilter, FiRotateCcw, FiSearch, FiSliders, FiChevronLeft, FiChevronRight } from 'react-icons/fi';
+import {
+  FiFilter,
+  FiRotateCcw,
+  FiSearch,
+  FiSliders,
+  FiChevronLeft,
+  FiChevronRight,
+  FiX,
+  FiStar
+} from 'react-icons/fi';
 import { RiShoppingBag3Fill } from 'react-icons/ri';
 
 type Item = {
@@ -14,26 +24,113 @@ type Item = {
   imgUrl: string;
 };
 
+const pricePresets = [
+  { label: 'All', value: 1500 },
+  { label: '< $100', value: 100 },
+  { label: '< $500', value: 500 },
+  { label: '< $1000', value: 1000 },
+];
+
+const ratingOptions = [
+  { label: 'All', value: 0 },
+  { label: '3★+', value: 3 },
+  { label: '4★+', value: 4 },
+  { label: '5★', value: 5 },
+];
+
+const categories = [
+  { id: 'all', label: 'All Products', icon: '⚡' },
+  { id: 'shoes', label: 'Shoes & Sneakers', icon: '👟' },
+  { id: 'books', label: 'Books & Literature', icon: '📚' },
+  { id: 'laptop', label: 'Laptops', icon: '💻' },
+  { id: 'phone', label: 'Smartphones', icon: '📱' }
+];
+
 export function Store() {
-  const [selectedCategory, setSelectedCategory] = useState<string>('all');
-  const [minRating, setMinRating] = useState<number>(0);
-  const [maxPrice, setMaxPrice] = useState<number>(1500);
-  const [searchQuery, setSearchQuery] = useState<string>('');
-  const [debouncedSearchQuery, setDebouncedSearchQuery] = useState('');
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  // Read initial values from URL params
+  const urlCategory = searchParams.get('category') || 'all';
+  const urlSearch = searchParams.get('search') || '';
+  const urlMaxPrice = searchParams.get('maxPrice') ? Number(searchParams.get('maxPrice')) : 1500;
+  const urlMinRating = searchParams.get('minRating') ? Number(searchParams.get('minRating')) : 0;
+  const urlSort = searchParams.get('sort') || 'featured';
+  const urlPage = searchParams.get('page') ? Number(searchParams.get('page')) : 1;
+
+  const [selectedCategory, setSelectedCategory] = useState<string>(urlCategory);
+  const [minRating, setMinRating] = useState<number>(urlMinRating);
+  const [maxPrice, setMaxPrice] = useState<number>(urlMaxPrice);
+  const [searchQuery, setSearchQuery] = useState<string>(urlSearch);
+  const [debouncedSearchQuery, setDebouncedSearchQuery] = useState<string>(urlSearch);
   const [showMobileFilter, setShowMobileFilter] = useState<boolean>(false);
-  const [currentPage, setCurrentPage] = useState<number>(1);
+  const [currentPage, setCurrentPage] = useState<number>(urlPage);
   const [itemsPerPage, setItemsPerPage] = useState<number>(6);
-  const [sortBy, setSortBy] = useState<string>('featured');
+  const [sortBy, setSortBy] = useState<string>(urlSort);
 
   const productGridRef = useRef<HTMLDivElement>(null);
 
+  // Sync state when URL params change externally (e.g. back/forward navigation or clicking links)
+  useEffect(() => {
+    const cat = searchParams.get('category') || 'all';
+    const s = searchParams.get('search') || '';
+    const p = searchParams.get('maxPrice') ? Number(searchParams.get('maxPrice')) : 1500;
+    const r = searchParams.get('minRating') ? Number(searchParams.get('minRating')) : 0;
+    const sort = searchParams.get('sort') || 'featured';
+    const page = searchParams.get('page') ? Number(searchParams.get('page')) : 1;
+
+    setSelectedCategory(cat);
+    setSearchQuery(s);
+    setDebouncedSearchQuery(s);
+    setMaxPrice(p);
+    setMinRating(r);
+    setSortBy(sort);
+    setCurrentPage(page);
+  }, [searchParams]);
+
+  // Helper to update URL search parameters
+  const updateUrlParams = useCallback((updates: Record<string, string | number | undefined>) => {
+    setSearchParams((prev) => {
+      const next = new URLSearchParams(prev);
+      Object.entries(updates).forEach(([key, val]) => {
+        if (
+          val === undefined ||
+          val === '' ||
+          val === 'all' ||
+          (key === 'maxPrice' && val === 1500) ||
+          (key === 'minRating' && val === 0) ||
+          (key === 'sort' && val === 'featured') ||
+          (key === 'page' && val === 1)
+        ) {
+          next.delete(key);
+        } else {
+          next.set(key, String(val));
+        }
+      });
+      return next;
+    }, { replace: true });
+  }, [setSearchParams]);
+
+  // Debounce search typing
   useEffect(() => {
     const timeoutId = window.setTimeout(() => {
       setDebouncedSearchQuery(searchQuery);
+      updateUrlParams({ search: searchQuery });
     }, 250);
 
     return () => window.clearTimeout(timeoutId);
-  }, [searchQuery]);
+  }, [searchQuery, updateUrlParams]);
+
+  // Dynamic counts per category
+  const categoryCounts = useMemo(() => {
+    const counts: Record<string, number> = {
+      all: storeItems.length
+    };
+    storeItems.forEach((item) => {
+      const cat = item.category.toLowerCase();
+      counts[cat] = (counts[cat] || 0) + 1;
+    });
+    return counts;
+  }, []);
 
   const filteredItems = useMemo(() => (storeItems as Item[]).filter((item) => {
     const matchesCategory = selectedCategory === 'all' || item.category.toLowerCase() === selectedCategory.toLowerCase();
@@ -64,15 +161,64 @@ export function Store() {
 
   useEffect(() => {
     setCurrentPage(1);
-  }, [debouncedSearchQuery, selectedCategory, minRating, maxPrice, sortBy, itemsPerPage]);
+    updateUrlParams({ page: 1 });
+  }, [debouncedSearchQuery, selectedCategory, minRating, maxPrice, sortBy, itemsPerPage, updateUrlParams]);
 
   const handlePageChange = (page: number) => {
     if (page < 1 || page > totalPages || page === currentPage) return;
     setCurrentPage(page);
+    updateUrlParams({ page });
     if (productGridRef.current) {
       productGridRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
   };
+
+  const handleCategoryChange = (catId: string) => {
+    setSelectedCategory(catId);
+    updateUrlParams({ category: catId, page: 1 });
+  };
+
+  const handlePriceChange = (price: number) => {
+    setMaxPrice(price);
+    updateUrlParams({ maxPrice: price, page: 1 });
+  };
+
+  const handleRatingChange = (rating: number) => {
+    setMinRating(rating);
+    updateUrlParams({ minRating: rating, page: 1 });
+  };
+
+  const handleSortChange = (sort: string) => {
+    setSortBy(sort);
+    updateUrlParams({ sort, page: 1 });
+  };
+
+  const handleSearchChange = (val: string) => {
+    setSearchQuery(val);
+  };
+
+  const handleClearSearch = () => {
+    setSearchQuery('');
+    setDebouncedSearchQuery('');
+    updateUrlParams({ search: '', page: 1 });
+  };
+
+  const clearFilters = () => {
+    setSelectedCategory('all');
+    setMinRating(0);
+    setMaxPrice(1500);
+    setSearchQuery('');
+    setDebouncedSearchQuery('');
+    setSortBy('featured');
+    setCurrentPage(1);
+    setSearchParams({}, { replace: true });
+  };
+
+  const activeFilterCount =
+    (selectedCategory !== 'all' ? 1 : 0) +
+    (minRating > 0 ? 1 : 0) +
+    (maxPrice < 1500 ? 1 : 0) +
+    (debouncedSearchQuery.trim() !== '' ? 1 : 0);
 
   const getPageNumbers = () => {
     const pages: number[] = [];
@@ -96,93 +242,129 @@ export function Store() {
     return pages;
   };
 
-  const clearFilters = () => {
-    setSelectedCategory('all');
-    setMinRating(0);
-    setMaxPrice(1500);
-    setSearchQuery('');
-    setSortBy('featured');
-    setCurrentPage(1);
-  };
-
-  const activeFilterCount = (selectedCategory !== 'all' ? 1 : 0) +
-    (minRating > 0 ? 1 : 0) +
-    (maxPrice < 1500 ? 1 : 0) +
-    (debouncedSearchQuery.trim() !== '' ? 1 : 0);
-
-  const categories = [
-    { id: 'all', label: 'All Products' },
-    { id: 'shoes', label: 'Shoes & Sneakers' },
-    { id: 'books', label: 'Books & Literature' },
-    { id: 'laptop', label: 'Laptops' },
-    { id: 'phone', label: 'Smartphones' }
-  ];
-
   const renderFilterControls = () => (
     <>
+      {/* Search Input */}
       <div className="mb-4">
         <Form.Label className="small fw-bold text-muted mb-2">Search Products</Form.Label>
         <div className="position-relative">
-          <FiSearch className="position-absolute text-muted" style={{ top: '10px', left: '12px' }} />
+          <FiSearch className="position-absolute text-muted" style={{ top: '11px', left: '14px' }} />
           <Form.Control
             type="text"
-            placeholder="e.g. MacBook..."
-            className="ps-5 rounded-pill"
+            placeholder="e.g. MacBook, Jordan..."
+            className="ps-5 pe-4 rounded-pill"
             value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
+            onChange={(e) => handleSearchChange(e.target.value)}
           />
+          {searchQuery && (
+            <button
+              type="button"
+              className="btn btn-link position-absolute p-0 text-muted border-0 d-flex align-items-center justify-content-center"
+              style={{ top: '8px', right: '12px', width: '22px', height: '22px', textDecoration: 'none' }}
+              onClick={handleClearSearch}
+              title="Clear search"
+              aria-label="Clear search"
+            >
+              <FiX size={15} />
+            </button>
+          )}
         </div>
       </div>
 
+      {/* Categories */}
       <div className="mb-4">
-        <Form.Label className="small fw-bold text-muted mb-2">Categories</Form.Label>
-        <div className="d-flex flex-column gap-2">
-          {categories.map((cat) => (
+        <div className="d-flex justify-content-between align-items-center mb-2">
+          <Form.Label className="small fw-bold text-muted mb-0">Categories</Form.Label>
+          {selectedCategory !== 'all' && (
             <button
-              key={cat.id}
-              className={`btn text-start px-3 py-2 rounded-3 border-0 transition-all ${
-                selectedCategory === cat.id 
-                  ? 'btn-primary fw-semibold' 
-                  : 'btn-light text-muted hover-bg-gray'
-              }`}
-              onClick={() => setSelectedCategory(cat.id)}
+              type="button"
+              className="btn btn-link p-0 text-muted small text-decoration-none"
+              style={{ fontSize: '0.75rem' }}
+              onClick={() => handleCategoryChange('all')}
             >
-              {cat.label}
+              Show All
+            </button>
+          )}
+        </div>
+        <div className="d-flex flex-column gap-2">
+          {categories.map((cat) => {
+            const isSelected = selectedCategory.toLowerCase() === cat.id.toLowerCase();
+            const count = categoryCounts[cat.id] || 0;
+
+            return (
+              <button
+                key={cat.id}
+                type="button"
+                className={`store-category-btn ${isSelected ? 'active' : ''}`}
+                onClick={() => handleCategoryChange(cat.id)}
+              >
+                <span className="d-flex align-items-center gap-2">
+                  <span style={{ fontSize: '1.05rem' }}>{cat.icon}</span>
+                  <span>{cat.label}</span>
+                </span>
+                <span className={`category-count-badge ${isSelected ? 'active' : ''}`}>
+                  {count}
+                </span>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Price Filter */}
+      <div className="mb-4">
+        <div className="d-flex justify-content-between align-items-center mb-2">
+          <Form.Label className="small fw-bold text-muted mb-0">Max Price</Form.Label>
+          <span className="badge bg-primary rounded-pill font-monospace">${maxPrice}</span>
+        </div>
+        <Form.Range
+          min={50}
+          max={1500}
+          step={50}
+          value={maxPrice}
+          onChange={(e) => handlePriceChange(parseInt(e.target.value, 10))}
+          className="mb-2"
+        />
+        <div className="d-flex justify-content-between text-muted mb-2" style={{ fontSize: '0.75rem' }}>
+          <span>$50</span>
+          <span>$1500+</span>
+        </div>
+        <div className="d-flex flex-wrap gap-1">
+          {pricePresets.map((preset) => (
+            <button
+              key={preset.label}
+              type="button"
+              className={`price-preset-pill ${maxPrice === preset.value ? 'active' : ''}`}
+              onClick={() => handlePriceChange(preset.value)}
+            >
+              {preset.label}
             </button>
           ))}
         </div>
       </div>
 
-      <div className="mb-4">
-        <div className="d-flex justify-content-between align-items-center mb-2">
-          <Form.Label className="small fw-bold text-muted mb-0">Max Price</Form.Label>
-          <span className="badge bg-primary rounded-pill">${maxPrice}</span>
-        </div>
-        <Form.Range
-          min={0}
-          max={1500}
-          step={50}
-          value={maxPrice}
-          onChange={(e) => setMaxPrice(parseInt(e.target.value, 10))}
-        />
-        <div className="d-flex justify-content-between text-muted" style={{ fontSize: '0.75rem' }}>
-          <span>$0</span>
-          <span>$1500+</span>
-        </div>
-      </div>
-
+      {/* Minimum Rating */}
       <div className="mb-3">
         <Form.Label className="small fw-bold text-muted mb-2">Minimum Rating</Form.Label>
-        <Form.Select
-          className="rounded-pill"
-          value={minRating}
-          onChange={(e) => setMinRating(parseFloat(e.target.value))}
-        >
-          <option value="0">All Ratings</option>
-          <option value="3">3★ & above</option>
-          <option value="4">4★ & above</option>
-          <option value="5">5★ only</option>
-        </Form.Select>
+        <div className="d-flex gap-1">
+          {ratingOptions.map((opt) => (
+            <button
+              key={opt.value}
+              type="button"
+              className={`rating-filter-pill ${minRating === opt.value ? 'active' : ''}`}
+              onClick={() => handleRatingChange(opt.value)}
+            >
+              {opt.value > 0 && (
+                <FiStar
+                  size={12}
+                  fill={minRating === opt.value ? '#ffffff' : '#f59e0b'}
+                  color={minRating === opt.value ? '#ffffff' : '#f59e0b'}
+                />
+              )}
+              <span>{opt.label}</span>
+            </button>
+          ))}
+        </div>
       </div>
     </>
   );
@@ -205,17 +387,24 @@ export function Store() {
       <Row className="g-4 mb-5">
         <Col lg={3} className="d-none d-lg-block">
           <div className="store-filter-sidebar p-4 bg-white rounded-4 border shadow-sm sticky-top" style={{ top: '90px' }}>
-            <div className="d-flex align-items-center justify-content-between mb-4">
+            <div className="d-flex align-items-center justify-content-between mb-4 pb-2 border-bottom">
               <h5 className="fw-bold mb-0 d-flex align-items-center gap-2">
                 <FiSliders className="text-primary" /> Filters
+                {activeFilterCount > 0 && (
+                  <span className="badge bg-primary text-white rounded-pill ms-1" style={{ fontSize: '0.72rem', fontWeight: 600 }}>
+                    {activeFilterCount}
+                  </span>
+                )}
               </h5>
-              <Button
-                variant="link"
-                className="text-muted p-0 text-decoration-none small d-flex align-items-center gap-1"
-                onClick={clearFilters}
-              >
-                <FiRotateCcw size={14} /> Reset
-              </Button>
+              {activeFilterCount > 0 && (
+                <Button
+                  variant="link"
+                  className="text-muted p-0 text-decoration-none small d-flex align-items-center gap-1"
+                  onClick={clearFilters}
+                >
+                  <FiRotateCcw size={13} /> Reset
+                </Button>
+              )}
             </div>
 
             {renderFilterControls()}
@@ -227,7 +416,7 @@ export function Store() {
           <div className="d-flex justify-content-between align-items-center mb-4 bg-white p-3 rounded-4 border shadow-sm flex-wrap gap-3">
             <div>
               <h5 className="mb-0 fw-bold text-dark">
-                {categories.find(c => c.id === selectedCategory)?.label || 'Products'}
+                {categories.find(c => c.id.toLowerCase() === selectedCategory.toLowerCase())?.label || 'Products'}
               </h5>
               <span className="text-muted small fw-semibold">
                 Showing {sortedItems.length === 0 ? '0' : `${startIndex + 1}–${Math.min(startIndex + itemsPerPage, sortedItems.length)}`} of {sortedItems.length} product{sortedItems.length !== 1 ? 's' : ''}
@@ -257,7 +446,7 @@ export function Store() {
                   className="rounded-pill px-3 py-1"
                   style={{ width: 'auto', minWidth: '150px' }}
                   value={sortBy}
-                  onChange={(e) => setSortBy(e.target.value)}
+                  onChange={(e) => handleSortChange(e.target.value)}
                   aria-label="Sort products"
                 >
                   <option value="featured">Featured</option>
@@ -283,6 +472,55 @@ export function Store() {
               </div>
             </div>
           </div>
+
+          {/* Active Filter Chips Bar */}
+          {activeFilterCount > 0 && (
+            <div className="d-flex align-items-center flex-wrap gap-2 mb-4 p-2 px-3 bg-white rounded-3 border shadow-sm">
+              <span className="text-muted small fw-semibold me-1 d-flex align-items-center gap-1">
+                <FiFilter size={13} /> Active:
+              </span>
+              {selectedCategory !== 'all' && (
+                <span className="active-filter-chip">
+                  <span>Category: {categories.find(c => c.id.toLowerCase() === selectedCategory.toLowerCase())?.label || selectedCategory}</span>
+                  <button type="button" onClick={() => handleCategoryChange('all')} aria-label="Clear category filter">
+                    <FiX size={14} />
+                  </button>
+                </span>
+              )}
+              {debouncedSearchQuery.trim() !== '' && (
+                <span className="active-filter-chip">
+                  <span>Search: &ldquo;{debouncedSearchQuery}&rdquo;</span>
+                  <button type="button" onClick={handleClearSearch} aria-label="Clear search filter">
+                    <FiX size={14} />
+                  </button>
+                </span>
+              )}
+              {maxPrice < 1500 && (
+                <span className="active-filter-chip">
+                  <span>Max: ${maxPrice}</span>
+                  <button type="button" onClick={() => handlePriceChange(1500)} aria-label="Clear price filter">
+                    <FiX size={14} />
+                  </button>
+                </span>
+              )}
+              {minRating > 0 && (
+                <span className="active-filter-chip">
+                  <span>Rating: {minRating}★+</span>
+                  <button type="button" onClick={() => handleRatingChange(0)} aria-label="Clear rating filter">
+                    <FiX size={14} />
+                  </button>
+                </span>
+              )}
+              <button
+                type="button"
+                className="btn btn-link text-danger p-0 ms-auto small text-decoration-none fw-semibold"
+                style={{ fontSize: '0.8rem' }}
+                onClick={clearFilters}
+              >
+                Clear All
+              </button>
+            </div>
+          )}
 
           {sortedItems.length === 0 ? (
             <div className="text-center py-5 bg-white rounded-4 border shadow-sm">
