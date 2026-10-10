@@ -1,88 +1,316 @@
-
 [
-    {
-      "id": 1,
-      "name": "nike jordan",
-      "price": 500.99,
-      "category":"shoes",
-      "rating":2,
-      "imgUrl": "/imgs/nikejordan.png"
+  {
+    "id": 1,
+    "name": "nike jordan",
+    "price": 500.99,
+    "originalPrice": 620.00,
+    "category": "shoes",
+    "rating": 2,
+    "imgUrl": "/imgs/nikejordan.png",
+    "brand": "Nike",
+    "badge": "Bestseller",
+    "stock": 6,
+    "description": "The iconic Air Jordan combines premium leather craftsmanship with legendary street style. Built with encapsulated Air-Sole cushioning for all-day comfort and responsiveness on and off the court.",
+    "features": [
+      "Encapsulated Air-Sole unit provides lightweight cushioning",
+      "Genuine leather and textile upper for durability and premium feel",
+      "Solid rubber outsole with circular traction pattern for court-level grip",
+      "Padded mid-cut collar for ankle support and plush comfort"
+    ],
+    "specs": {
+      "Style Code": "AJ1-RET-01",
+      "Upper Material": "Full-Grain Leather",
+      "Sole Material": "Durable Vulcanized Rubber",
+      "Closure": "Classic Lace-Up",
+      "Cushioning": "Nike Air-Sole Unit",
+      "Colorway": "Black / University Red / White"
     },
-    {
-      "id": 2,
-      "name": "IKIGAI",
-      "price": 69,
-      "category":"books",
-      "rating":5,
-      "imgUrl": "/imgs/book2.png"
-
+    "gallery": [
+      "/imgs/nikejordan.png",
+      "/imgs/nikejordan1.png"
+    ]
+  },
+  {
+    "id": 2,
+    "name": "IKIGAI",
+    "price": 69,
+    "originalPrice": 85,
+    "category": "books",
+    "rating": 5,
+    "imgUrl": "/imgs/book2.png",
+    "brand": "Penguin Life",
+    "badge": "Staff Pick",
+    "stock": 14,
+    "description": "Discover the Japanese secret to a long, happy, and purposeful life. Inspiring and practical, Ikigai reveals how finding the intersection of passion, mission, vocation, and profession transforms daily living.",
+    "features": [
+      "International multimillion-copy bestseller translated into 40+ languages",
+      "Field research and interviews with Okinawa's centenarians",
+      "Practical guidance on flow, diet, mindful movement, and resilience",
+      "Deluxe hardcover keepsake edition with gold foil accents"
+    ],
+    "specs": {
+      "Authors": "Héctor García & Francesc Miralles",
+      "Publisher": "Penguin Life",
+      "ISBN-13": "978-0143130726",
+      "Pages": "208 pages",
+      "Language": "English",
+      "Format": "Hardcover Keepsake"
     },
-    {
-      "id": 3,
-      "name": "Adidas ",
-      "price": 699.99,
-      "category":"shoes",
-      "rating":3,
-      "imgUrl": "/imgs/adidas.png"
-
+    "gallery": [
+      "/imgs/book2.png",
+      "/imgs/book1.png"
+    ]
+  },
+  {
+    "id": 3,
+    "name": "Adidas ",
+    "price": 699.99,
+    "originalPrice": 799.99,
+    "category": "shoes",
+    "rating": 3,
+    "imgUrl": "/imgs/adidas.png",
+    "brand": "Adidas",
+    "badge": "Popular",
+    "stock": 4,
+    "description": "Designed for peak performance and timeless streetwear aesthetics. Featuring responsive Boost foam cushioning and breathable engineered mesh for unmatched lightness and energy return with every stride.",
+    "features": [
+      "High-rebound Boost midsole cushioning for incredible energy return",
+      "Engineered Primeknit upper wraps the foot in adaptable support",
+      "Continental™ Rubber outsole provides extraordinary traction in all conditions",
+      "Torsion System between the heel and forefoot for stability"
+    ],
+    "specs": {
+      "Style Code": "ADI-BST-03",
+      "Upper Material": "Primeknit Engineered Fabric",
+      "Midsole": "Full-Length Boost Foam",
+      "Outsole": "Continental™ Grip Rubber",
+      "Weight": "10.9 oz (size 9)",
+      "Colorway": "Cloud White / Core Black"
     },
-    {
-      "id": 4,
-      "name": "Iphone 15",
-      "price": 1100,
-      "category":"phone",
-      "rating":4,
-      "imgUrl": "/imgs/iphone.png"
+    "gallery": [
+      "/imgs/adidas.png",
+      "/imgs/adidas1.png"
+    ]
+  },
+  {
+    "id": 4,
+    "name": "Iphone 15",
+    "price": 1100,
+    "originalPrice": 1250,
+    "category": "phone",
+    "rating": 4,
+    "imgUrl": "/imgs/iphone.png",
+    "brand": "Apple",
+    "badge": "Trending",
+    "stock": 9,
+    "description": "iPhone 15 brings Dynamic Island, a 48MP main camera with 2x optical-quality telephoto, durable color-infused glass, an aerospace-grade aluminum enclosure, and the universal convenience of USB-C.",
+    "features": [
+      "Dynamic Island bubbles up alerts and Live Activities seamlessly",
+      "Advanced 48MP Main camera with 2x Telephoto for breathtaking detail",
+      "A16 Bionic chip powers advanced computational photography and gaming",
+      "All-day battery life with up to 20 hours video playback",
+      "Universal USB-C connector with fast charging and data transfer"
+    ],
+    "specs": {
+      "Display": "6.1\" Super Retina XDR OLED (2556 x 1179)",
+      "Processor": "A16 Bionic with 6-core CPU & 5-core GPU",
+      "Storage": "256GB High-Speed Flash Storage",
+      "Camera System": "48MP Main + 12MP Ultra Wide with 4K Dolby Vision",
+      "Water Resistance": "IP68 rated (maximum depth 6m up to 30 min)",
+      "Weight": "171 grams (6.02 ounces)"
     },
-    {
-      "id": 5,
-      "name": "Nike Air Jordan",
-      "price": 999.99,
-      "category":"shoes",
-      "rating":2,
-      "imgUrl": "/imgs/nikejordan1.png"
+    "gallery": [
+      "/imgs/iphone.png",
+      "/imgs/iphone14.png"
+    ]
+  },
+  {
+    "id": 5,
+    "name": "Nike Air Jordan",
+    "price": 999.99,
+    "originalPrice": 1150.00,
+    "category": "shoes",
+    "rating": 2,
+    "imgUrl": "/imgs/nikejordan1.png",
+    "brand": "Nike",
+    "badge": "Limited Edition",
+    "stock": 3,
+    "description": "An elevated luxury edition of the legendary high-top. Premium tumbled leather meets retro basketball heritage, finished with signature Wings branding and dual-density comfort insoles.",
+    "features": [
+      "Exclusive collector's edition retro basketball silhouette",
+      "Handcrafted tumbled leather upper with precision contrast stitching",
+      "Encapsulated Zoom Air unit in heel for reactive court cushioning",
+      "Embossed iconic Air Jordan Wings logo on collar"
+    ],
+    "specs": {
+      "Style Code": "AJ1-HI-OG5",
+      "Upper Material": "Premium Tumbled Leather",
+      "Insole": "Dual-Density Molded PU Cushioning",
+      "Outsole": "Translucent Ice Rubber Tread",
+      "Origin": "Imported / Limited Run",
+      "Release Year": "2024 Special Edition"
     },
-    {
-      "id": 6,
-      "name": "ALCHEMIST",
-      "price": 199,
-      "category":"books",
-      "rating":5,
-      "imgUrl": "/imgs/book1.png"
-
+    "gallery": [
+      "/imgs/nikejordan1.png",
+      "/imgs/nikejordan.png"
+    ]
+  },
+  {
+    "id": 6,
+    "name": "ALCHEMIST",
+    "price": 199,
+    "originalPrice": 240,
+    "category": "books",
+    "rating": 5,
+    "imgUrl": "/imgs/book1.png",
+    "brand": "HarperOne",
+    "badge": "Timeless Classic",
+    "stock": 18,
+    "description": "Paulo Coelho's masterpiece tells the mystical story of Santiago, an Andalusian shepherd boy who yearns to travel in search of a worldly treasure, teaching readers to listen to their hearts and follow their dreams.",
+    "features": [
+      "Over 150 million copies sold worldwide in 80+ languages",
+      "Philosophical adventure of listening to omens and pursuing your Personal Legend",
+      "Special 25th Anniversary Collector's Edition with commemorative author's foreword",
+      "Embossed foil cover and acid-free archival quality paper"
+    ],
+    "specs": {
+      "Author": "Paulo Coelho",
+      "Publisher": "HarperOne (25th Anniversary Edition)",
+      "ISBN-13": "978-0062315007",
+      "Pages": "208 pages",
+      "Language": "English",
+      "Format": "Hardcover Deluxe with Ribbon Bookmark"
     },
-    {
-      "id": 7,
-      "name": "Adidas AIR",
-      "price": 899.99,
-      "category":"shoes",
-      "rating":3,
-      "imgUrl": "/imgs/adidas1.png"
-
+    "gallery": [
+      "/imgs/book1.png",
+      "/imgs/book2.png"
+    ]
+  },
+  {
+    "id": 7,
+    "name": "Adidas AIR",
+    "price": 899.99,
+    "originalPrice": 1050.00,
+    "category": "shoes",
+    "rating": 3,
+    "imgUrl": "/imgs/adidas1.png",
+    "brand": "Adidas",
+    "badge": "New Arrival",
+    "stock": 5,
+    "description": "Aerodynamic silhouette engineered for runners and sneaker collectors alike. Built with cutting-edge 3D lattice cushioning and breathable mesh for featherweight, all-day athletic performance.",
+    "features": [
+      "Digitally printed 4D lattice midsole tuned for forward motion",
+      "Lightweight woven mesh upper keeps feet cool and ventilated",
+      "Ergonomic heel counter locks foot in place for lateral stability",
+      "Reflective accents for high-visibility low-light runs"
+    ],
+    "specs": {
+      "Style Code": "ADI-4D-AIR7",
+      "Midsole": "Adidas 4D Liquid Resin Lattice",
+      "Upper": "Engineered Monofilament Mesh",
+      "Drop": "10 mm (Heel: 32 mm / Forefoot: 22 mm)",
+      "Arch Type": "Normal / Neutral Stability",
+      "Weight": "310 g (Size 9)"
     },
-    {
-      "id": 8,
-      "name": "Iphone 14",
-      "price": 1000,
-      "category":"phone",
-      "rating":4,
-      "imgUrl": "/imgs/iphone14.png"
+    "gallery": [
+      "/imgs/adidas1.png",
+      "/imgs/adidas.png"
+    ]
+  },
+  {
+    "id": 8,
+    "name": "Iphone 14",
+    "price": 1000,
+    "originalPrice": 1100,
+    "category": "phone",
+    "rating": 4,
+    "imgUrl": "/imgs/iphone14.png",
+    "brand": "Apple",
+    "badge": "Popular",
+    "stock": 8,
+    "description": "iPhone 14 delivers exceptional dual-camera photography in any light, Crash Detection safety technology, industry-leading battery stamina, and the blazing performance of the A15 Bionic chip.",
+    "features": [
+      "Vibrant 6.1-inch Super Retina XDR display with Ceramic Shield front cover",
+      "Advanced dual-camera system with Photonic Engine for low-light detail",
+      "Action Mode for smooth, steady handheld video recordings",
+      "Emergency SOS and Crash Detection peace-of-mind safety features",
+      "5G capable for ultrafast downloads and high-quality streaming"
+    ],
+    "specs": {
+      "Display": "6.1\" OLED Super Retina XDR (2532 x 1170)",
+      "Chipset": "A15 Bionic with 5-core GPU",
+      "Storage": "128GB High-Speed NVMe Storage",
+      "Front Camera": "12MP TrueDepth with autofocus",
+      "Rear Camera": "12MP Main (f/1.5) + 12MP Ultra Wide (120° FOV)",
+      "Biometrics": "Face ID Facial Recognition"
     },
-    {
-      "id": 9,
-      "name": "Macbook AIR",
-      "price": 1100,
-      "category":"laptop",
-      "rating":3,
-      "imgUrl": "/imgs/macbook.png"
-
+    "gallery": [
+      "/imgs/iphone14.png",
+      "/imgs/iphone.png"
+    ]
+  },
+  {
+    "id": 9,
+    "name": "Macbook AIR",
+    "price": 1100,
+    "originalPrice": 1299,
+    "category": "laptop",
+    "rating": 3,
+    "imgUrl": "/imgs/macbook.png",
+    "brand": "Apple",
+    "badge": "Editor's Choice",
+    "stock": 7,
+    "description": "Redesigned around the next-generation M2 chip, MacBook Air is impossibly thin, delivering incredible speed and power efficiency inside an all-aluminum enclosure with up to 18 hours of battery life.",
+    "features": [
+      "Blazing-fast Apple M2 8-core CPU and up to 10-core GPU",
+      "Stunning 13.6-inch Liquid Retina display with 500 nits brightness and P3 wide color",
+      "Fanless, completely silent design even during intensive workflows",
+      "1080p FaceTime HD camera, three-mic array, and spatial audio speaker system",
+      "MagSafe 3 fast-charging port, two Thunderbolt ports, and headphone jack"
+    ],
+    "specs": {
+      "Processor": "Apple M2 8-Core CPU / 8-Core GPU / 16-Core Neural Engine",
+      "Memory": "16GB Unified High-Bandwidth RAM",
+      "Storage": "512GB PCIe-based Solid State Drive (SSD)",
+      "Display": "13.6\" Liquid Retina with True Tone (2560 x 1664)",
+      "Battery Life": "Up to 18 hours Apple TV app movie playback",
+      "Weight": "2.7 lbs (1.24 kg) - 11.3 mm thin"
     },
-    {
-      "id": 10,
-      "name": "DELL Inspiron",
-      "price": 900,
-      "category":"laptop",
-      "rating":4,
-      "imgUrl": "/imgs/dell.png"
-    }
-  ]
+    "gallery": [
+      "/imgs/macbook.png",
+      "/imgs/dell.png"
+    ]
+  },
+  {
+    "id": 10,
+    "name": "DELL Inspiron",
+    "price": 900,
+    "originalPrice": 1049,
+    "category": "laptop",
+    "rating": 4,
+    "imgUrl": "/imgs/dell.png",
+    "brand": "Dell",
+    "badge": "Best Value",
+    "stock": 11,
+    "description": "The Dell Inspiron 15 balances productivity and entertainment with an Intel Core processor, vibrant narrow-border FHD display, spacious ergonomic keyboard, and ExpressCharge fast recharging.",
+    "features": [
+      "Latest 13th Gen Intel Core i7 processor for seamless multitasking",
+      "15.6-inch FHD (1920x1080) anti-glare display with 120Hz refresh rate",
+      "ExpressCharge technology powers battery up to 80% in just 60 minutes",
+      "Ergonomic lift hinge creates a comfortable typing angle and optimizes cooling",
+      "ComfortView software reduces harmful blue light emissions during long work sessions"
+    ],
+    "specs": {
+      "Processor": "Intel Core i7-1355U (10 cores, up to 5.0 GHz)",
+      "Memory": "16GB DDR4 3200MHz Dual-Channel",
+      "Storage": "512GB M.2 PCIe NVMe SSD",
+      "Graphics": "Intel Iris Xe Graphics",
+      "Screen": "15.6\" FHD (1920x1080) 120Hz IPS Anti-Glare WVA",
+      "Ports": "1x USB-C, 2x USB-A 3.2, 1x HDMI 1.4, SD Card Reader"
+    },
+    "gallery": [
+      "/imgs/dell.png",
+      "/imgs/macbook.png"
+    ]
+  }
+]

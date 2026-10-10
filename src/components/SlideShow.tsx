@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from 'react-bootstrap';
-import { FiChevronLeft, FiChevronRight, FiShoppingBag, FiStar } from 'react-icons/fi';
+import { FiChevronLeft, FiChevronRight, FiShoppingBag, FiStar, FiEye } from 'react-icons/fi';
 import { formatCurrency } from '../utilities/formatCurrency';
 import { useShoppingCart } from '../context/ShoppingCartContext';
+import { useQuickView } from '../context/ProductQuickViewContext';
 
 export type ShowcaseSlide = {
   id: number;
@@ -23,6 +24,7 @@ const Slideshow: React.FC<SlideshowProps> = ({ slides, interval = 4500 }) => {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
   const { increaseItemQuantity, getItemQuantity } = useShoppingCart();
+  const { openQuickView } = useQuickView();
 
   const goToNextSlide = () => {
     setCurrentSlide((prev) => (prev + 1) % slides.length);
@@ -56,7 +58,17 @@ const Slideshow: React.FC<SlideshowProps> = ({ slides, interval = 4500 }) => {
         <span className="showcase-price-tag">{formatCurrency(current.price)}</span>
       </div>
 
-      <div className="showcase-img-container">
+      <div 
+        className="showcase-img-container"
+        onClick={() => openQuickView(current.id)}
+        role="button"
+        tabIndex={0}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' || e.key === ' ') openQuickView(current.id);
+        }}
+        style={{ cursor: 'pointer' }}
+        title="Click to view product details"
+      >
         <img
           key={current.id}
           src={current.imageUrl}
@@ -66,7 +78,13 @@ const Slideshow: React.FC<SlideshowProps> = ({ slides, interval = 4500 }) => {
       </div>
 
       <div className="w-100 text-center mt-3">
-        <h3 className="text-white fw-bold mb-1 fs-4 text-capitalize">
+        <h3 
+          className="text-white fw-bold mb-1 fs-4 text-capitalize"
+          onClick={() => openQuickView(current.id)}
+          role="button"
+          style={{ cursor: 'pointer' }}
+          title="Click to view product details"
+        >
           {current.name}
         </h3>
         <div className="d-flex align-items-center justify-content-center gap-1 mb-3 text-warning">
@@ -92,15 +110,32 @@ const Slideshow: React.FC<SlideshowProps> = ({ slides, interval = 4500 }) => {
               padding: '0.45rem 1.25rem',
               fontWeight: 600
             }}
-            className="d-flex align-items-center gap-2"
+            className="d-flex align-items-center gap-2 shadow-sm"
           >
             <FiShoppingBag size={15} />
             {qty > 0 ? `In Cart (${qty}) +` : 'Quick Add'}
           </Button>
+
+          <Button
+            size="sm"
+            variant="outline-light"
+            onClick={() => openQuickView(current.id)}
+            style={{
+              borderRadius: '9999px',
+              padding: '0.45rem 1rem',
+              fontWeight: 600,
+              backdropFilter: 'blur(4px)',
+              background: 'rgba(255, 255, 255, 0.15)',
+              border: '1px solid rgba(255, 255, 255, 0.3)'
+            }}
+            className="d-flex align-items-center gap-1"
+          >
+            <FiEye size={15} />
+            <span>Details</span>
+          </Button>
         </div>
       </div>
 
-      {/* Navigation Controls */}
       <div className="d-flex align-items-center justify-content-between w-100 mt-3 pt-2">
         <button
           className="showcase-nav-btn"

@@ -1,8 +1,19 @@
 import { formatCurrency } from '../utilities/formatCurrency';
 import { useShoppingCart } from '../context/ShoppingCartContext';
 import { useWishlist } from '../context/WishlistContext';
+import { useQuickView } from '../context/ProductQuickViewContext';
+import storeItems from '../data/items.json';
 import { toast } from 'react-toastify';
-import { RiStarSFill, RiShoppingCart2Line, RiAddLine, RiSubtractLine, RiDeleteBin6Line, RiHeartLine, RiHeartFill } from 'react-icons/ri';
+import {
+  RiStarSFill,
+  RiShoppingCart2Line,
+  RiAddLine,
+  RiSubtractLine,
+  RiDeleteBin6Line,
+  RiHeartLine,
+  RiHeartFill,
+  RiEyeLine
+} from 'react-icons/ri';
 
 type StoreItemProps = {
   id: number;
@@ -11,13 +22,21 @@ type StoreItemProps = {
   rating: number;
   imgUrl: string;
   category?: string;
+  originalPrice?: number;
+  badge?: string;
 };
 
-export function StoreItem({ id, name, price, imgUrl, rating, category }: StoreItemProps) {
+export function StoreItem({ id, name, price, imgUrl, rating, category, originalPrice, badge }: StoreItemProps) {
   const { getItemQuantity, increaseItemQuantity, decreaseItemQuantity, removeFromCart, openCart } = useShoppingCart();
   const { isInWishlist, toggleWishlist } = useWishlist();
+  const { openQuickView } = useQuickView();
   const quantity = getItemQuantity(id);
   const isWishlisted = isInWishlist(id);
+
+  // Fallback to storeItems data if not explicitly provided
+  const itemMeta = storeItems.find((i) => i.id === id);
+  const effectiveOriginalPrice = originalPrice ?? itemMeta?.originalPrice;
+  const effectiveBadge = badge ?? itemMeta?.badge;
 
   const getTagClass = (cat?: string) => {
     switch (cat?.toLowerCase()) {
@@ -34,7 +53,7 @@ export function StoreItem({ id, name, price, imgUrl, rating, category }: StoreIt
     toast.success(
       <div className="d-flex align-items-center justify-content-between gap-3">
         <div>
-          <div className="fw-bold text-dark" style={{ fontSize: '0.9rem' }}>{name}</div>
+          <div className="fw-bold text-dark text-capitalize" style={{ fontSize: '0.9rem' }}>{name}</div>
           <div className="text-muted" style={{ fontSize: '0.8rem' }}>Item added to cart!</div>
         </div>
         <button
@@ -62,7 +81,7 @@ export function StoreItem({ id, name, price, imgUrl, rating, category }: StoreIt
     if (!isWishlisted) {
       toast.success(
         <div>
-          <span className="fw-bold">{name}</span> added to wishlist!
+          <span className="fw-bold text-capitalize">{name}</span> added to wishlist!
         </div>,
         {
           icon: <RiHeartFill size={20} color="#f43f5e" />,
@@ -72,7 +91,7 @@ export function StoreItem({ id, name, price, imgUrl, rating, category }: StoreIt
     } else {
       toast.info(
         <div>
-          <span className="fw-bold">{name}</span> removed from wishlist
+          <span className="fw-bold text-capitalize">{name}</span> removed from wishlist
         </div>,
         {
           autoClose: 2000,
@@ -96,19 +115,65 @@ export function StoreItem({ id, name, price, imgUrl, rating, category }: StoreIt
         )}
       </button>
 
-      <div className="card-img-wrapper">
+      <div 
+        className="card-img-wrapper position-relative"
+        onClick={() => openQuickView(id)}
+        role="button"
+        tabIndex={0}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            openQuickView(id);
+          }
+        }}
+        title="Click to view details"
+      >
         {category && (
           <span className={`product-tag ${getTagClass(category)}`}>
             {category}
           </span>
         )}
+
+        {effectiveBadge && (
+          <span className="product-badge-pill">
+            {effectiveBadge}
+          </span>
+        )}
+
         <img src={imgUrl} alt={name} loading="lazy" />
+
+        <button
+          type="button"
+          className="product-card-quickview-btn"
+          onClick={(e) => {
+            e.stopPropagation();
+            openQuickView(id);
+          }}
+          aria-label={`Quick view ${name}`}
+        >
+          <RiEyeLine size={16} />
+          <span>Quick View</span>
+        </button>
       </div>
 
       <div className="product-card-body">
         <div className="d-flex justify-content-between align-items-start mb-2">
-          <h4 className="product-title">{name}</h4>
-          <span className="product-price">{formatCurrency(price)}</span>
+          <h4 
+            className="product-title text-capitalize"
+            onClick={() => openQuickView(id)}
+            role="button"
+            title="Click to view details"
+            style={{ cursor: 'pointer' }}
+          >
+            {name}
+          </h4>
+          <div className="text-end">
+            <span className="product-price">{formatCurrency(price)}</span>
+            {effectiveOriginalPrice && effectiveOriginalPrice > price && (
+              <div className="text-muted small text-decoration-line-through" style={{ fontSize: '0.78rem' }}>
+                {formatCurrency(effectiveOriginalPrice)}
+              </div>
+            )}
+          </div>
         </div>
 
         <div className='d-flex align-items-center gap-1 mb-3'>

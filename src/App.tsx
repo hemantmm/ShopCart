@@ -9,11 +9,13 @@ import { Footer } from './components/Footer'
 import { ScrollToTop } from './components/ScrollToTop'
 import { ShoppingCartProvider } from './context/ShoppingCartContext'
 import { WishlistProvider } from './context/WishlistContext'
+import { ProductQuickViewProvider } from './context/ProductQuickViewContext'
 import { ThemeProvider, useTheme } from './context/ThemeContext'
 import { Contact } from './pages/Contact'
 import { NotFound } from './pages/NotFound'
 import { Wishlist } from './pages/Wishlist'
 import { ShoppingCart } from './components/ShoppingCart'
+import { ProductQuickViewModal } from './components/ProductQuickViewModal'
 import { ToastContainer } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
 import './App.css'
@@ -25,6 +27,7 @@ function AppContent() {
     <div className="d-flex flex-column min-vh-100">
       <Navbar />
       <ShoppingCart />
+      <ProductQuickViewModal />
       <main className="flex-grow-1">
         <Container className="mb-5" fluid="lg">
           <Routes>
@@ -61,7 +64,9 @@ function App() {
     <ThemeProvider>
       <WishlistProvider>
         <ShoppingCartProvider>
-          <AppContent />
+          <ProductQuickViewProvider>
+            <AppContent />
+          </ProductQuickViewProvider>
         </ShoppingCartProvider>
       </WishlistProvider>
     </ThemeProvider>

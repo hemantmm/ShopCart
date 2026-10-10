@@ -88,8 +88,11 @@ export function Store() {
   }, [searchParams]);
 
   // Helper to update URL search parameters
+  const setSearchParamsRef = useRef(setSearchParams);
+  setSearchParamsRef.current = setSearchParams;
+
   const updateUrlParams = useCallback((updates: Record<string, string | number | undefined>) => {
-    setSearchParams((prev) => {
+    setSearchParamsRef.current((prev) => {
       const next = new URLSearchParams(prev);
       Object.entries(updates).forEach(([key, val]) => {
         if (
@@ -99,7 +102,7 @@ export function Store() {
           (key === 'maxPrice' && val === 1500) ||
           (key === 'minRating' && val === 0) ||
           (key === 'sort' && val === 'featured') ||
-          (key === 'page' && val === 1)
+          (key === 'page' && Number(val) <= 1)
         ) {
           next.delete(key);
         } else {
@@ -108,13 +111,26 @@ export function Store() {
       });
       return next;
     }, { replace: true });
-  }, [setSearchParams]);
+  }, []);
+
+  const isInitialMount = useRef(true);
+  const prevSearchQuery = useRef(searchQuery);
 
   // Debounce search typing
   useEffect(() => {
+    if (isInitialMount.current) {
+      isInitialMount.current = false;
+      return;
+    }
+    if (prevSearchQuery.current === searchQuery) {
+      return;
+    }
+    prevSearchQuery.current = searchQuery;
+
     const timeoutId = window.setTimeout(() => {
       setDebouncedSearchQuery(searchQuery);
-      updateUrlParams({ search: searchQuery });
+      setCurrentPage(1);
+      updateUrlParams({ search: searchQuery, page: 1 });
     }, 250);
 
     return () => window.clearTimeout(timeoutId);
@@ -159,10 +175,13 @@ export function Store() {
     return sortedItems.slice(startIndex, startIndex + itemsPerPage);
   }, [sortedItems, startIndex, itemsPerPage]);
 
+  // Adjust current page if filters reduce total pages below current page
   useEffect(() => {
-    setCurrentPage(1);
-    updateUrlParams({ page: 1 });
-  }, [debouncedSearchQuery, selectedCategory, minRating, maxPrice, sortBy, itemsPerPage, updateUrlParams]);
+    if (currentPage > totalPages) {
+      setCurrentPage(1);
+      updateUrlParams({ page: 1 });
+    }
+  }, [currentPage, totalPages, updateUrlParams]);
 
   const handlePageChange = (page: number) => {
     if (page < 1 || page > totalPages || page === currentPage) return;
@@ -462,9 +481,15 @@ export function Store() {
                   className="rounded-pill px-3 py-1"
                   style={{ width: 'auto' }}
                   value={itemsPerPage}
-                  onChange={(e) => setItemsPerPage(Number(e.target.value))}
+                  onChange={(e) => {
+                    const count = Number(e.target.value);
+                    setItemsPerPage(count);
+                    setCurrentPage(1);
+                    updateUrlParams({ page: 1 });
+                  }}
                   aria-label="Items per page"
                 >
+                  <option value={3}>3 / page</option>
                   <option value={6}>6 / page</option>
                   <option value={9}>9 / page</option>
                   <option value={12}>12 / page</option>
