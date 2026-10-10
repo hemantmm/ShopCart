@@ -58,7 +58,6 @@ export function Navbar() {
           </Nav>
 
           <div className="navbar-actions-group d-flex align-items-center gap-1 gap-sm-2">
-            {/* Theme Toggle Button */}
             <button
               type="button"
               onClick={toggleTheme}
@@ -69,7 +68,6 @@ export function Navbar() {
               {isDarkMode ? <RiSunFill size={19} /> : <RiMoonClearFill size={19} />}
             </button>
 
-            {/* Wishlist Button */}
             <div className="wishlist-btn-wrapper position-relative">
               <Link
                 to="/wishlist"
@@ -84,7 +82,6 @@ export function Navbar() {
               </Link>
             </div>
 
-            {/* Cart Button */}
             <div className="cart-btn-wrapper position-relative">
               <button
                 type="button"

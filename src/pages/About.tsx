@@ -49,7 +49,6 @@ export function About() {
 
   return (
     <div className="about-page-container">
-      {/* 1. ABOUT HERO BANNER */}
       <section className="about-hero-section">
         <div className="hero-tag mx-auto">
           <RiShoppingBag3Fill color="#38bdf8" />
@@ -82,7 +81,6 @@ export function About() {
         </div>
       </section>
 
-      {/* 2. THE STORY & MISSION */}
       <section className="mb-5">
         <Row className="g-4 align-items-stretch">
           <Col lg={7}>
@@ -145,7 +143,6 @@ export function About() {
         </Row>
       </section>
 
-      {/* 3. CORE VALUES & PILLARS */}
       <section className="mb-5">
         <div className="text-center mb-4">
           <span className="text-primary fw-bold text-uppercase small">What Drives Us</span>
@@ -170,7 +167,6 @@ export function About() {
         </Row>
       </section>
 
-      {/* 4. DEVELOPER & ENGINEERING SPOTLIGHT */}
       <section className="developer-card mb-5">
         <Row className="align-items-center g-4">
           <Col lg={8} className="text-lg-start text-center">
@@ -184,7 +180,6 @@ export function About() {
               ShopCart was designed and engineered to showcase modern web technologies, responsive layouts, dynamic state management with React Hooks & Context API, and polished user experiences.
             </p>
 
-            {/* Tech Badges */}
             <div className="d-flex align-items-center justify-content-lg-start justify-content-center gap-2 flex-wrap mb-4">
               {techStack.map((tech, i) => (
                 <span key={i} className="tech-badge-pill">

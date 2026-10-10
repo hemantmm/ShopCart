@@ -153,7 +153,6 @@ export function Home() {
 
   return (
     <div className="home-page-container">
-      {/* 1. HERO SHOWCASE SECTION */}
       <section className="hero-wrapper">
         <Row className="align-items-center g-4">
           <Col lg={7} className="text-lg-start text-center">
@@ -201,7 +200,6 @@ export function Home() {
         </Row>
       </section>
 
-      {/* 2. TRUST & VALUE PROPOSITIONS BAR */}
       <section className="trust-bar-container">
         <div className="trust-card">
           <div className="trust-icon-box">
@@ -244,7 +242,6 @@ export function Home() {
         </div>
       </section>
 
-      {/* 3. FLASH DEAL OF THE DAY */}
       <section id="flash-deal" className="flash-deal-box">
         <Row className="align-items-center g-4">
           <Col lg={7} className="text-lg-start text-center">
@@ -330,7 +327,6 @@ export function Home() {
         </Row>
       </section>
 
-      {/* 4. INTERACTIVE CATEGORY HUB & CURATED STORE */}
       <section className="category-hub-wrapper">
         <div className="section-header">
           <div>
@@ -358,7 +354,6 @@ export function Home() {
           </div>
         </div>
 
-        {/* Product Cards Grid */}
         <Row xs={1} sm={2} md={3} lg={4} className="g-4">
           {filteredProducts.map(item => (
             <Col key={item.id}>
@@ -375,7 +370,6 @@ export function Home() {
         </Row>
       </section>
 
-      {/* 5. SPOTLIGHT PROMO TILES */}
       <section className="mb-5 mt-4">
         <Row className="g-4">
           <Col md={4}>
@@ -446,7 +440,6 @@ export function Home() {
         </Row>
       </section>
 
-      {/* 6. TESTIMONIALS & SOCIAL PROOF */}
       <section className="testimonials-section">
         <div className="text-center mb-4">
           <span className="text-primary fw-bold text-uppercase small">Real Feedback</span>
@@ -492,7 +485,6 @@ export function Home() {
         </Row>
       </section>
 
-      {/* 7. VIP NEWSLETTER & DISCOUNT BANNER */}
       <section className="newsletter-banner">
         <div className="position-relative" style={{ zIndex: 2 }}>
           <div className="d-inline-flex align-items-center gap-2 px-3 py-1 bg-white bg-opacity-20 rounded-pill small fw-bold mb-2">

@@ -306,7 +306,6 @@ export function ShoppingCart({ isOpen: isOpenProp }: ShoppingCartProps) {
       </Offcanvas.Header>
 
       <Offcanvas.Body className="d-flex flex-column p-3">
-        {/* SUCCESS SCREEN */}
         {currentStep === 'success' ? (
           <div className="text-center my-auto py-4">
             <div
@@ -362,7 +361,6 @@ export function ShoppingCart({ isOpen: isOpenProp }: ShoppingCartProps) {
             </Button>
           </div>
         ) : cartItems.length === 0 ? (
-          /* EMPTY CART SCREEN */
           <div className="text-center my-auto py-5">
             <div
               style={{
@@ -389,9 +387,7 @@ export function ShoppingCart({ isOpen: isOpenProp }: ShoppingCartProps) {
             </Link>
           </div>
         ) : (
-          /* ACTIVE CART & CHECKOUT FLOW */
           <div className="d-flex flex-column flex-grow-1">
-            {/* Step Selector Tabs */}
             <div className="d-flex gap-2 mb-3">
               <button
                 type="button"
@@ -409,7 +405,6 @@ export function ShoppingCart({ isOpen: isOpenProp }: ShoppingCartProps) {
               </button>
             </div>
 
-            {/* STEP 1: REVIEW CART */}
             {currentStep === 'cart' && (
               <div className="d-flex flex-column flex-grow-1">
                 <div className="d-flex flex-column gap-2 mb-3" style={{ maxHeight: '42vh', overflowY: 'auto' }}>
@@ -418,7 +413,6 @@ export function ShoppingCart({ isOpen: isOpenProp }: ShoppingCartProps) {
                   ))}
                 </div>
 
-                {/* Promo Code Box */}
                 <div className="p-3 bg-light rounded-3 border mb-3">
                   <div className="d-flex align-items-center justify-content-between mb-2">
                     <div className="d-flex align-items-center gap-1 small fw-bold text-dark">
@@ -473,7 +467,6 @@ export function ShoppingCart({ isOpen: isOpenProp }: ShoppingCartProps) {
                     </div>
                   )}
 
-                  {/* Available Coupons Tags */}
                   <div className="pt-2 border-top">
                     <div className="d-flex align-items-center justify-content-between mb-2">
                       <span className="small text-muted fw-bold" style={{ fontSize: '0.72rem', letterSpacing: '0.5px' }}>
@@ -546,7 +539,6 @@ export function ShoppingCart({ isOpen: isOpenProp }: ShoppingCartProps) {
                   </div>
                 </div>
 
-                {/* Cost Breakdown */}
                 <div className="cart-summary-card mt-auto mb-3">
                   <div className="d-flex justify-content-between small text-muted mb-1">
                     <span>Subtotal</span>
@@ -614,11 +606,9 @@ export function ShoppingCart({ isOpen: isOpenProp }: ShoppingCartProps) {
               </div>
             )}
 
-            {/* STEP 2: CHECKOUT FORM */}
             {currentStep === 'checkout' && (
               <Form onSubmit={handleSubmit(onSubmitCheckout)} noValidate className="d-flex flex-column flex-grow-1">
                 <div style={{ maxHeight: '55vh', overflowY: 'auto', paddingRight: '4px' }}>
-                  {/* Contact / Receipt Section */}
                   <div className="mb-3">
                     <div className="d-flex align-items-center gap-2 fw-bold small text-primary mb-2">
                       <FiMail />
@@ -658,7 +648,6 @@ export function ShoppingCart({ isOpen: isOpenProp }: ShoppingCartProps) {
                     </Row>
                   </div>
 
-                  {/* Shipping Section */}
                   <div className="mb-3">
                     <div className="d-flex align-items-center gap-2 fw-bold small text-primary mb-2">
                       <FiMapPin />
@@ -730,7 +719,6 @@ export function ShoppingCart({ isOpen: isOpenProp }: ShoppingCartProps) {
                     </Row>
                   </div>
 
-                  {/* Payment Details */}
                   <div className="mb-3">
                     <div className="d-flex align-items-center justify-content-between mb-2">
                       <div className="d-flex align-items-center gap-2 fw-bold small text-primary">
@@ -798,7 +786,6 @@ export function ShoppingCart({ isOpen: isOpenProp }: ShoppingCartProps) {
                   </div>
                 </div>
 
-                {/* Final Total and Submit */}
                 <div className="mt-auto pt-3 border-top">
                   <div className="d-flex justify-content-between align-items-center mb-3">
                     <div>

@@ -74,7 +74,6 @@ const testimonials = [
 export function Testimonials() {
   return (
     <div className="testimonials-page-container">
-      {/* 1. HERO BANNER */}
       <section className="about-hero-section mb-5 text-center">
         <div className="hero-tag mx-auto">
           <FiMessageSquare color="#38bdf8" />
@@ -87,7 +86,6 @@ export function Testimonials() {
           Hear from thousands of satisfied customers who have experienced the speed, quality, and simplicity of the ShopCart ecosystem.
         </p>
 
-        {/* Global Stats */}
         <div className="d-flex align-items-center justify-content-center gap-4 mt-4 flex-wrap">
           <div className="d-flex align-items-center gap-2 bg-white px-4 py-2 rounded-pill shadow-sm border">
             <div className="d-flex text-warning">
@@ -106,14 +104,12 @@ export function Testimonials() {
         </div>
       </section>
 
-      {/* 2. REVIEWS GRID */}
       <section className="mb-5">
         <Row xs={1} md={2} lg={3} className="g-4">
           {testimonials.map((review) => (
             <Col key={review.id}>
               <Card className="h-100 border-0 shadow-sm rounded-4 testimonial-card transition-all">
                 <Card.Body className="p-4 d-flex flex-column">
-                  {/* Header: Rating & Product */}
                   <div className="d-flex justify-content-between align-items-start mb-3">
                     <div className="d-flex text-warning gap-1">
                       {[...Array(5)].map((_, i) => (
@@ -125,7 +121,6 @@ export function Testimonials() {
                     </span>
                   </div>
 
-                  {/* Body: Quote */}
                   <div className="mb-4 position-relative flex-grow-1">
                     <RiDoubleQuotesL className="position-absolute text-light" style={{ top: '-10px', left: '-10px', fontSize: '3rem', zIndex: 0, opacity: 0.5 }} />
                     <p className="text-secondary position-relative" style={{ zIndex: 1, lineHeight: '1.6', fontSize: '0.95rem' }}>
@@ -133,7 +128,6 @@ export function Testimonials() {
                     </p>
                   </div>
 
-                  {/* Footer: User Info */}
                   <div className="d-flex align-items-center gap-3 pt-3 border-top border-light">
                     <div 
                       className="rounded-circle d-flex align-items-center justify-content-center text-white fw-bold shadow-sm"

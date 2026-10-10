@@ -263,7 +263,6 @@ export function Store() {
 
   const renderFilterControls = () => (
     <>
-      {/* Search Input */}
       <div className="mb-4">
         <Form.Label className="small fw-bold text-muted mb-2">Search Products</Form.Label>
         <div className="position-relative">
@@ -290,7 +289,6 @@ export function Store() {
         </div>
       </div>
 
-      {/* Categories */}
       <div className="mb-4">
         <div className="d-flex justify-content-between align-items-center mb-2">
           <Form.Label className="small fw-bold text-muted mb-0">Categories</Form.Label>
@@ -330,7 +328,6 @@ export function Store() {
         </div>
       </div>
 
-      {/* Price Filter */}
       <div className="mb-4">
         <div className="d-flex justify-content-between align-items-center mb-2">
           <Form.Label className="small fw-bold text-muted mb-0">Max Price</Form.Label>
@@ -362,7 +359,6 @@ export function Store() {
         </div>
       </div>
 
-      {/* Minimum Rating */}
       <div className="mb-3">
         <Form.Label className="small fw-bold text-muted mb-2">Minimum Rating</Form.Label>
         <div className="d-flex gap-1">
@@ -430,7 +426,6 @@ export function Store() {
           </div>
         </Col>
 
-        {/* 3. PRODUCT GRID */}
         <Col xs={12} lg={9} ref={productGridRef}>
           <div className="d-flex justify-content-between align-items-center mb-4 bg-white p-3 rounded-4 border shadow-sm flex-wrap gap-3">
             <div>
@@ -498,7 +493,6 @@ export function Store() {
             </div>
           </div>
 
-          {/* Active Filter Chips Bar */}
           {activeFilterCount > 0 && (
             <div className="d-flex align-items-center flex-wrap gap-2 mb-4 p-2 px-3 bg-white rounded-3 border shadow-sm">
               <span className="text-muted small fw-semibold me-1 d-flex align-items-center gap-1">

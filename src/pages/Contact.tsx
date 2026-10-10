@@ -57,7 +57,6 @@ export function Contact() {
 
   return (
     <div className="contact-container">
-      {/* 1. CONTACT HERO */}
       <section className="about-hero-section mb-4">
         <div className="hero-tag mx-auto">
           <RiCustomerService2Fill color="#38bdf8" />
@@ -71,9 +70,7 @@ export function Contact() {
         </p>
       </section>
 
-      {/* 2. DUAL-COLUMN CONTACT HUB */}
       <Row className="g-4 mb-5">
-        {/* Left Column: Direct Channels */}
         <Col lg={5}>
           <div className="contact-card h-100 d-flex flex-column justify-content-between">
             <div>
@@ -133,7 +130,6 @@ export function Contact() {
           </div>
         </Col>
 
-        {/* Right Column: Interactive Form */}
         <Col lg={7}>
           <div className="contact-card">
             <h3 className="fw-bold text-dark mb-1">Send Us a Message</h3>
@@ -224,7 +220,6 @@ export function Contact() {
         </Col>
       </Row>
 
-      {/* 3. FREQUENTLY ASKED QUESTIONS */}
       <section className="mb-5">
         <div className="text-center mb-4">
           <span className="text-primary fw-bold text-uppercase small d-flex align-items-center justify-content-center gap-1">
