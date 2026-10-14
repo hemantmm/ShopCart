@@ -4,7 +4,13 @@ import { useShoppingCart } from '../context/ShoppingCartContext';
 import { CartItem } from './CartItem';
 import { formatCurrency } from '../utilities/formatCurrency';
 import storeItems from '../data/items.json';
-import { AVAILABLE_COUPONS, CouponDefinition } from '../data/coupons';
+import {
+  AVAILABLE_COUPONS,
+  CouponDefinition,
+  FREE_SHIPPING_THRESHOLD,
+  STANDARD_SHIPPING_FEE
+} from '../data/coupons';
+import { FreeShippingProgressBar } from './FreeShippingProgressBar';
 import {
   FiShoppingBag,
   FiArrowRight,
@@ -108,6 +114,9 @@ export function ShoppingCart({ isOpen: isOpenProp }: ShoppingCartProps) {
     id: string;
     name: string;
     email: string;
+    subtotal: number;
+    discount: number;
+    shipping: number;
     total: number;
   } | null>(null);
 
@@ -142,6 +151,9 @@ export function ShoppingCart({ isOpen: isOpenProp }: ShoppingCartProps) {
 
   const subtotal = calculateSubtotal();
   const isCouponOrderMet = !appliedCoupon?.minOrder || subtotal >= appliedCoupon.minOrder;
+  const isSubtotalFreeShipping = subtotal >= FREE_SHIPPING_THRESHOLD;
+  const isFreeShipping = isSubtotalFreeShipping || appliedCoupon?.code === 'FREESHIP';
+  const shippingCost = cartItems.length === 0 || isFreeShipping ? 0 : STANDARD_SHIPPING_FEE;
 
   const calculateDiscount = () => {
     if (!appliedCoupon || !isCouponOrderMet) return 0;
@@ -151,14 +163,12 @@ export function ShoppingCart({ isOpen: isOpenProp }: ShoppingCartProps) {
     if (appliedCoupon.type === 'flat') {
       return Math.min(subtotal, appliedCoupon.value);
     }
-    if (appliedCoupon.type === 'shipping') {
-      return Math.min(subtotal, appliedCoupon.value);
-    }
+    // 'shipping' coupon is applied via shippingCost ($0)
     return 0;
   };
 
   const discountAmount = calculateDiscount();
-  const finalTotal = Math.max(0, subtotal - discountAmount);
+  const finalTotal = Math.max(0, subtotal - discountAmount + shippingCost);
 
   const handleApplyPromo = (e?: React.FormEvent, codeToApply?: string) => {
     if (e) e.preventDefault();
@@ -191,6 +201,13 @@ export function ShoppingCart({ isOpen: isOpenProp }: ShoppingCartProps) {
       return;
     }
 
+    if (matchedCoupon.code === 'FREESHIP' && isSubtotalFreeShipping) {
+      toast.info('Your order already qualifies for Free Express Delivery! Try WELCOME10 or SHOPCART15 for savings on items.', {
+        icon: <FiTruck size={18} color="#10b981" />,
+        autoClose: 3500,
+      });
+    }
+
     setAppliedCoupon(matchedCoupon);
     setPromoInput(matchedCoupon.code);
 
@@ -199,7 +216,9 @@ export function ShoppingCart({ isOpen: isOpenProp }: ShoppingCartProps) {
         ? `${matchedCoupon.value}% discount applied!`
         : matchedCoupon.type === 'flat'
         ? `${formatCurrency(matchedCoupon.value)} discount applied!`
-        : 'Free Express Delivery credit applied!';
+        : isSubtotalFreeShipping
+        ? 'Free shipping active (already unlocked by order subtotal)'
+        : `Free Express Delivery applied (${formatCurrency(STANDARD_SHIPPING_FEE)} value)!`;
 
     setPromoMessage({
       type: 'success',
@@ -264,6 +283,9 @@ export function ShoppingCart({ isOpen: isOpenProp }: ShoppingCartProps) {
       id: randomId,
       name: data.fullName,
       email: data.email,
+      subtotal,
+      discount: discountAmount,
+      shipping: shippingCost,
       total: finalTotal
     });
     clearCart();
@@ -345,6 +367,26 @@ export function ShoppingCart({ isOpen: isOpenProp }: ShoppingCartProps) {
                       {completedOrder.email}
                     </span>
                   </div>
+                  <div className="d-flex justify-content-between align-items-center mb-1 small">
+                    <span className="text-muted">Subtotal:</span>
+                    <span className="fw-semibold text-dark">{formatCurrency(completedOrder.subtotal)}</span>
+                  </div>
+                  {completedOrder.discount > 0 && (
+                    <div className="d-flex justify-content-between align-items-center mb-1 small text-success">
+                      <span>Discount:</span>
+                      <span className="fw-semibold">-{formatCurrency(completedOrder.discount)}</span>
+                    </div>
+                  )}
+                  <div className="d-flex justify-content-between align-items-center mb-1 small">
+                    <span className="text-muted">Express Shipping:</span>
+                    <span className="fw-semibold text-dark">
+                      {completedOrder.shipping === 0 ? (
+                        <span className="text-success fw-bold">FREE</span>
+                      ) : (
+                        formatCurrency(completedOrder.shipping)
+                      )}
+                    </span>
+                  </div>
                   <div className="d-flex justify-content-between align-items-center small border-top pt-2 mt-2">
                     <span className="text-muted">Total Paid:</span>
                     <span className="fw-bold text-primary">{formatCurrency(completedOrder.total)}</span>
@@ -407,7 +449,15 @@ export function ShoppingCart({ isOpen: isOpenProp }: ShoppingCartProps) {
 
             {currentStep === 'cart' && (
               <div className="d-flex flex-column flex-grow-1">
-                <div className="d-flex flex-column gap-2 mb-3" style={{ maxHeight: '42vh', overflowY: 'auto' }}>
+                <FreeShippingProgressBar
+                  subtotal={subtotal}
+                  threshold={FREE_SHIPPING_THRESHOLD}
+                  standardFee={STANDARD_SHIPPING_FEE}
+                  hasFreeShippingCoupon={appliedCoupon?.code === 'FREESHIP'}
+                  onBrowseStore={handleClose}
+                />
+
+                <div className="d-flex flex-column gap-2 mb-3" style={{ maxHeight: '36vh', overflowY: 'auto' }}>
                   {cartItems.map((item) => (
                     <CartItem key={item.id} {...item} />
                   ))}
@@ -481,6 +531,8 @@ export function ShoppingCart({ isOpen: isOpenProp }: ShoppingCartProps) {
                       {AVAILABLE_COUPONS.map((coupon) => {
                         const isApplied = appliedCoupon?.code === coupon.code;
                         const isEligible = !coupon.minOrder || subtotal >= coupon.minOrder;
+                        const isFreeShippingAlready =
+                          coupon.code === 'FREESHIP' && isSubtotalFreeShipping;
 
                         return (
                           <div
@@ -500,6 +552,8 @@ export function ShoppingCart({ isOpen: isOpenProp }: ShoppingCartProps) {
                                 ? `Requires minimum order of ${formatCurrency(coupon.minOrder!)}`
                                 : isApplied
                                 ? `Click to remove ${coupon.code}`
+                                : isFreeShippingAlready
+                                ? 'Free shipping already qualified by order size (tap to apply)'
                                 : `Click to apply ${coupon.code}`
                             }
                           >
@@ -517,6 +571,10 @@ export function ShoppingCart({ isOpen: isOpenProp }: ShoppingCartProps) {
                                 {isApplied ? (
                                   <span className="coupon-action-badge applied">
                                     Applied ✓
+                                  </span>
+                                ) : isFreeShippingAlready ? (
+                                  <span className="coupon-action-badge applied">
+                                    Unlocked ✓
                                   </span>
                                 ) : !isEligible ? (
                                   <span className="coupon-action-badge locked">
@@ -575,16 +633,22 @@ export function ShoppingCart({ isOpen: isOpenProp }: ShoppingCartProps) {
 
                   <div className="d-flex justify-content-between small text-muted mb-2">
                     <span className="d-flex align-items-center gap-1">
-                      <FiTruck size={14} className="text-primary" />
+                      <FiTruck size={14} className={isFreeShipping ? 'text-success' : 'text-primary'} />
                       <span>Express Shipping</span>
                     </span>
-                    {appliedCoupon?.code === 'FREESHIP' ? (
+                    {isFreeShipping ? (
                       <span className="text-success fw-bold d-flex align-items-center gap-1">
-                        <span className="text-decoration-line-through text-muted small" style={{ fontSize: '0.75rem' }}>$15.00</span>
+                        {!isSubtotalFreeShipping && appliedCoupon?.code === 'FREESHIP' && (
+                          <span className="text-decoration-line-through text-muted small" style={{ fontSize: '0.75rem' }}>
+                            {formatCurrency(STANDARD_SHIPPING_FEE)}
+                          </span>
+                        )}
                         <span>FREE</span>
                       </span>
                     ) : (
-                      <span className="text-success fw-bold">FREE</span>
+                      <span className="fw-semibold text-dark">
+                        {formatCurrency(shippingCost)}
+                      </span>
                     )}
                   </div>
 
@@ -609,6 +673,29 @@ export function ShoppingCart({ isOpen: isOpenProp }: ShoppingCartProps) {
             {currentStep === 'checkout' && (
               <Form onSubmit={handleSubmit(onSubmitCheckout)} noValidate className="d-flex flex-column flex-grow-1">
                 <div style={{ maxHeight: '55vh', overflowY: 'auto', paddingRight: '4px' }}>
+                  <div
+                    className={`checkout-shipping-banner p-2 px-3 rounded-3 mb-3 d-flex align-items-center justify-content-between ${
+                      isFreeShipping ? 'unlocked' : 'standard'
+                    }`}
+                  >
+                    <div className="d-flex align-items-center gap-2 small">
+                      <FiTruck className={isFreeShipping ? 'text-success' : 'text-primary'} size={16} />
+                      <span className="fw-semibold">
+                        {isFreeShipping
+                          ? 'FREE Express 2-Day Delivery Included'
+                          : `Standard Express Delivery (${formatCurrency(STANDARD_SHIPPING_FEE)})`}
+                      </span>
+                    </div>
+                    <span
+                      className={`badge rounded-pill fw-bold ${
+                        isFreeShipping ? 'bg-success text-white' : 'bg-secondary bg-opacity-10 text-dark'
+                      }`}
+                      style={{ fontSize: '0.72rem' }}
+                    >
+                      {isFreeShipping ? 'FREE' : formatCurrency(STANDARD_SHIPPING_FEE)}
+                    </span>
+                  </div>
+
                   <div className="mb-3">
                     <div className="d-flex align-items-center gap-2 fw-bold small text-primary mb-2">
                       <FiMail />
@@ -787,14 +874,26 @@ export function ShoppingCart({ isOpen: isOpenProp }: ShoppingCartProps) {
                 </div>
 
                 <div className="mt-auto pt-3 border-top">
-                  <div className="d-flex justify-content-between align-items-center mb-3">
+                  <div className="d-flex justify-content-between align-items-center mb-1 small text-muted">
+                    <span>Items Subtotal:</span>
+                    <span className="fw-semibold text-dark">{formatCurrency(subtotal)}</span>
+                  </div>
+                  {appliedCoupon && isCouponOrderMet && discountAmount > 0 && (
+                    <div className="d-flex justify-content-between align-items-center mb-1 small text-success">
+                      <span>Promo ({appliedCoupon.code}):</span>
+                      <span className="fw-semibold">-{formatCurrency(discountAmount)}</span>
+                    </div>
+                  )}
+                  <div className="d-flex justify-content-between align-items-center mb-2 small text-muted">
+                    <span>Express Shipping:</span>
+                    <span className={isFreeShipping ? 'text-success fw-bold' : 'fw-semibold text-dark'}>
+                      {isFreeShipping ? 'FREE' : formatCurrency(shippingCost)}
+                    </span>
+                  </div>
+
+                  <div className="d-flex justify-content-between align-items-center mb-3 border-top pt-2">
                     <div>
                       <span className="text-muted small d-block">Total Due:</span>
-                      {appliedCoupon && isCouponOrderMet && discountAmount > 0 && (
-                        <span className="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25" style={{ fontSize: '0.72rem' }}>
-                          🏷️ {appliedCoupon.code} (-{formatCurrency(discountAmount)})
-                        </span>
-                      )}
                     </div>
                     <span className="fs-5 fw-bold text-primary">{formatCurrency(finalTotal)}</span>
                   </div>

@@ -2951,5 +2951,283 @@ body {
   border-color: #0f172a;
 }
 
+.free-shipping-card {
+  border-radius: var(--radius-md);
+  padding: 0.85rem 1rem;
+  transition: var(--transition-normal);
+}
+
+.free-shipping-card.in-progress {
+  background: linear-gradient(135deg, rgba(79, 70, 229, 0.05) 0%, rgba(99, 102, 241, 0.08) 100%);
+  border: 1px solid rgba(79, 70, 229, 0.16);
+}
+
+.free-shipping-card.unlocked {
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.08) 0%, rgba(5, 150, 105, 0.13) 100%);
+  border: 1px solid rgba(16, 185, 129, 0.28);
+  box-shadow: 0 4px 14px rgba(16, 185, 129, 0.12);
+}
+
+.free-shipping-icon-bubble {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.free-shipping-icon-bubble.in-progress {
+  background: #eef2ff;
+}
+
+.free-shipping-icon-bubble.unlocked {
+  background: #dcfce7;
+  animation: celebratePulse 2s infinite ease-in-out;
+}
+
+.shipping-truck-icon {
+  animation: truckDrive 2.2s infinite ease-in-out;
+}
+
+.free-shipping-headline {
+  font-size: 0.86rem;
+  line-height: 1.25;
+}
+
+.free-shipping-headline.in-progress {
+  color: #1e293b;
+}
+
+.free-shipping-headline.unlocked {
+  color: #065f46;
+}
+
+.free-shipping-amount-needed {
+  color: var(--primary-color);
+}
+
+.free-shipping-subtext {
+  font-size: 0.72rem;
+  color: #64748b;
+  margin-top: 1px;
+}
+
+.free-shipping-pct-pill {
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 0.22rem 0.55rem;
+  border-radius: 9999px;
+  display: inline-block;
+  letter-spacing: 0.2px;
+}
+
+.free-shipping-pct-pill.in-progress {
+  background: rgba(79, 70, 229, 0.1);
+  color: var(--primary-color);
+  border: 1px solid rgba(79, 70, 229, 0.2);
+}
+
+.free-shipping-pct-pill.unlocked {
+  background: #10b981;
+  color: #ffffff;
+  box-shadow: 0 2px 8px rgba(16, 185, 129, 0.4);
+}
+
+.free-shipping-track {
+  height: 8px;
+  width: 100%;
+  background: #e2e8f0;
+  border-radius: 999px;
+  overflow: hidden;
+  position: relative;
+  margin-top: 0.2rem;
+}
+
+.free-shipping-fill {
+  height: 100%;
+  border-radius: 999px;
+  position: relative;
+  overflow: hidden;
+  transition: width 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.free-shipping-fill.in-progress {
+  background: linear-gradient(90deg, #4f46e5 0%, #6366f1 60%, #06b6d4 100%);
+}
+
+.free-shipping-fill.unlocked {
+  background: linear-gradient(90deg, #10b981 0%, #059669 100%);
+  box-shadow: 0 0 10px rgba(16, 185, 129, 0.45);
+}
+
+.free-shipping-shimmer-stripe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.4) 50%,
+    transparent 100%
+  );
+  animation: shimmerStripe 2s infinite linear;
+}
+
+.free-shipping-milestones {
+  font-size: 0.72rem;
+  color: #64748b;
+  font-weight: 500;
+}
+
+.milestone-label {
+  color: #475569;
+  font-weight: 600;
+  font-size: 0.72rem;
+}
+
+.milestone-hint {
+  color: #64748b;
+  font-size: 0.72rem;
+}
+
+.milestone-hint.unlocked {
+  color: #059669;
+  font-weight: 600;
+  font-size: 0.72rem;
+}
+
+.free-shipping-quick-add-link {
+  color: var(--primary-color);
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 0.72rem;
+  transition: var(--transition-normal);
+}
+
+.free-shipping-quick-add-link:hover {
+  color: var(--primary-hover);
+  text-decoration: underline;
+}
+
+.checkout-shipping-banner {
+  border: 1px solid var(--border-color);
+  transition: var(--transition-normal);
+}
+
+.checkout-shipping-banner.standard {
+  background: #f8fafc;
+  color: #1e293b;
+}
+
+.checkout-shipping-banner.unlocked {
+  background: rgba(16, 185, 129, 0.08);
+  border-color: rgba(16, 185, 129, 0.28);
+  color: #065f46;
+}
+
+@keyframes truckDrive {
+  0%, 100% {
+    transform: translateX(0);
+  }
+  50% {
+    transform: translateX(3px);
+  }
+}
+
+@keyframes celebratePulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.12);
+  }
+}
+
+@keyframes shimmerStripe {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+/* Dark Mode Overrides for Free Shipping Progress Bar */
+[data-bs-theme="dark"] .free-shipping-card.in-progress {
+  background: rgba(79, 70, 229, 0.12);
+  border-color: rgba(99, 102, 241, 0.28);
+}
+
+[data-bs-theme="dark"] .free-shipping-card.unlocked {
+  background: rgba(16, 185, 129, 0.12);
+  border-color: rgba(16, 185, 129, 0.32);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3);
+}
+
+[data-bs-theme="dark"] .free-shipping-icon-bubble.in-progress {
+  background: rgba(99, 102, 241, 0.24);
+}
+
+[data-bs-theme="dark"] .free-shipping-icon-bubble.unlocked {
+  background: rgba(16, 185, 129, 0.24);
+}
+
+[data-bs-theme="dark"] .free-shipping-headline.in-progress {
+  color: #f8fafc;
+}
+
+[data-bs-theme="dark"] .free-shipping-headline.unlocked {
+  color: #a7f3d0;
+}
+
+[data-bs-theme="dark"] .free-shipping-amount-needed {
+  color: #a5b4fc;
+}
+
+[data-bs-theme="dark"] .free-shipping-subtext {
+  color: #94a3b8;
+}
+
+[data-bs-theme="dark"] .free-shipping-track {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+[data-bs-theme="dark"] .free-shipping-milestones {
+  color: #94a3b8;
+}
+
+[data-bs-theme="dark"] .milestone-label {
+  color: #cbd5e1;
+}
+
+[data-bs-theme="dark"] .milestone-hint {
+  color: #94a3b8;
+}
+
+[data-bs-theme="dark"] .milestone-hint.unlocked {
+  color: #34d399;
+}
+
+[data-bs-theme="dark"] .free-shipping-quick-add-link {
+  color: #818cf8;
+}
+
+[data-bs-theme="dark"] .checkout-shipping-banner.standard {
+  background: #0f172a;
+  border-color: #334155;
+  color: #f8fafc;
+}
+
+[data-bs-theme="dark"] .checkout-shipping-banner.unlocked {
+  background: rgba(16, 185, 129, 0.12);
+  border-color: rgba(16, 185, 129, 0.32);
+  color: #a7f3d0;
+}
+
+
 
 

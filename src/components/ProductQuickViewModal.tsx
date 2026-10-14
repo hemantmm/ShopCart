@@ -380,7 +380,7 @@ export function ProductQuickViewModal() {
                     <RiTruckLine className="text-primary mt-1 flex-shrink-0" size={20} />
                     <div>
                       <div className="fw-bold text-dark">Free Express Shipping</div>
-                      <div>Orders over $50 qualify for complimentary priority express 2-day delivery.</div>
+                      <div>Orders over $150 qualify for complimentary priority express 2-day delivery.</div>
                     </div>
                   </div>
                   <div className="d-flex align-items-start gap-3">

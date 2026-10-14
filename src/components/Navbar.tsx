@@ -223,7 +223,7 @@ export function Navbar() {
             </div>
 
             <div className="text-center text-muted" style={{ fontSize: '0.78rem' }}>
-              ⚡ Free express delivery on orders over $50
+              ⚡ Free express delivery on orders over $150
             </div>
           </div>
         </Offcanvas.Body>

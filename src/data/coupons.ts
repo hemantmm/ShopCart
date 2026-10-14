@@ -7,6 +7,9 @@ export type CouponDefinition = {
   minOrder?: number;
 };
 
+export const FREE_SHIPPING_THRESHOLD = 150;
+export const STANDARD_SHIPPING_FEE = 15;
+
 export const AVAILABLE_COUPONS: CouponDefinition[] = [
   {
     code: 'WELCOME10',

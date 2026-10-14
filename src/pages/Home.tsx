@@ -207,7 +207,7 @@ export function Home() {
           </div>
           <div>
             <h5 className="trust-title">Free Express Shipping</h5>
-            <p className="trust-desc">Complimentary shipping on all orders over $50</p>
+            <p className="trust-desc">Complimentary shipping on all orders over $150</p>
           </div>
         </div>
 
