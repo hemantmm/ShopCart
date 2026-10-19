@@ -11,6 +11,8 @@ import {
   STANDARD_SHIPPING_FEE
 } from '../data/coupons';
 import { FreeShippingProgressBar } from './FreeShippingProgressBar';
+import { useOrderHistory } from '../context/OrderHistoryContext';
+import { Order, OrderItem } from '../types/order';
 import {
   FiShoppingBag,
   FiArrowRight,
@@ -20,7 +22,8 @@ import {
   FiTruck,
   FiCreditCard,
   FiMapPin,
-  FiMail
+  FiMail,
+  FiPackage
 } from 'react-icons/fi';
 import { Link } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
@@ -99,6 +102,7 @@ type ShoppingCartProps = {
 
 export function ShoppingCart({ isOpen: isOpenProp }: ShoppingCartProps) {
   const { closeCart, cartItems, clearCart, cartQuantity, isCartOpen } = useShoppingCart();
+  const { addOrder } = useOrderHistory();
   const isOpen = isOpenProp ?? isCartOpen;
 
   // Step state: 'cart' | 'checkout' | 'success'
@@ -278,6 +282,54 @@ export function ShoppingCart({ isOpen: isOpenProp }: ShoppingCartProps) {
 
   const onSubmitCheckout = (data: CheckoutFormData) => {
     const randomId = 'SC-' + Math.floor(100000 + Math.random() * 900000);
+    const trackingNum = 'TRK-SC-' + Math.floor(10000000 + Math.random() * 90000000);
+    const cleanCard = data.cardNumber.replace(/\D/g, '');
+    const cardLast4 = cleanCard.slice(-4) || '4242';
+
+    const orderItemsList: OrderItem[] = cartItems.map((cartItem) => {
+      const item = storeItems.find((i) => i.id === cartItem.id);
+      return {
+        id: cartItem.id,
+        name: item?.name || `Product #${cartItem.id}`,
+        price: item?.price || 0,
+        quantity: cartItem.quantity,
+        imgUrl: item?.imgUrl || '',
+        category: item?.category || ''
+      };
+    });
+
+    const estDeliveryDate = new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric'
+    });
+
+    const newOrder: Order = {
+      id: randomId,
+      createdAt: new Date().toISOString(),
+      customer: {
+        fullName: data.fullName,
+        email: data.email,
+        address: data.address,
+        city: data.city,
+        state: data.state,
+        zip: data.zip,
+        cardLast4
+      },
+      items: orderItemsList,
+      subtotal,
+      discountAmount,
+      couponCode: appliedCoupon?.code,
+      shippingCost,
+      total: finalTotal,
+      status: 'processing',
+      trackingNumber: trackingNum,
+      carrier: 'FedEx Priority 2-Day',
+      estimatedDelivery: estDeliveryDate
+    };
+
+    addOrder(newOrder);
+
     setOrderId(randomId);
     setCompletedOrder({
       id: randomId,
@@ -290,7 +342,7 @@ export function ShoppingCart({ isOpen: isOpenProp }: ShoppingCartProps) {
     });
     clearCart();
     setCurrentStep('success');
-    toast.success(`🎉 Order ${randomId} confirmed! Receipt sent to ${data.email}`);
+    toast.success(`🎉 Order ${randomId} confirmed! Receipt saved to My Orders.`);
   };
 
   const handleClose = () => {
@@ -348,7 +400,7 @@ export function ShoppingCart({ isOpen: isOpenProp }: ShoppingCartProps) {
             </div>
             <h4 className="fw-bold text-dark mb-2">Order Confirmed!</h4>
             <p className="text-muted small mb-3">
-              This demo order has been recorded. No payment was processed.
+              Your order has been recorded and archived to <strong>My Orders</strong>.
             </p>
             <div className="p-3 bg-light rounded-3 border mb-4 text-start">
               <div className="d-flex justify-content-between align-items-center mb-2">
@@ -394,13 +446,25 @@ export function ShoppingCart({ isOpen: isOpenProp }: ShoppingCartProps) {
                 </>
               )}
             </div>
-            <Button
-              variant="primary"
-              className="w-100 py-2 rounded-pill fw-bold"
-              onClick={handleClose}
-            >
-              Continue Shopping
-            </Button>
+
+            <div className="d-flex flex-column gap-2">
+              <Link
+                to={`/orders?id=${orderId}`}
+                onClick={handleClose}
+                className="btn btn-primary w-100 py-2 rounded-pill fw-bold d-flex align-items-center justify-content-center gap-2 shadow"
+              >
+                <FiPackage size={16} />
+                <span>View in My Orders</span>
+                <FiArrowRight size={15} />
+              </Link>
+              <Button
+                variant="outline-secondary"
+                className="w-100 py-2 rounded-pill fw-bold"
+                onClick={handleClose}
+              >
+                Continue Shopping
+              </Button>
+            </div>
           </div>
         ) : cartItems.length === 0 ? (
           <div className="text-center my-auto py-5">

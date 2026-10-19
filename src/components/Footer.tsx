@@ -37,6 +37,7 @@ export function Footer() {
             <Link to="/testimonials" className="footer-link">Reviews</Link>
             <Link to="/contact" className="footer-link">Contact</Link>
             <Link to="/wishlist" className="footer-link">Wishlist</Link>
+            <Link to="/orders" className="footer-link">My Orders</Link>
           </Col>
 
           <Col lg={3} md={3} sm={6} xs={6} className="text-start">

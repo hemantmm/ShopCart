@@ -3228,6 +3228,212 @@ body {
   color: #a7f3d0;
 }
 
+/* ==========================================================
+   MY ORDERS & RECEIPT ARCHIVE
+   ========================================================== */
+.orders-page-container {
+  min-height: 70vh;
+}
+
+.order-card {
+  transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.order-card:hover {
+  border-color: #cbd5e1;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.08), 0 8px 10px -6px rgba(0, 0, 0, 0.04);
+  transform: translateY(-2px);
+}
+
+.order-tracking-card {
+  background: linear-gradient(135deg, rgba(79, 70, 229, 0.04) 0%, rgba(99, 102, 241, 0.07) 100%);
+  border: 1px solid rgba(79, 70, 229, 0.15);
+}
+
+/* Stepper Progress Bar */
+.order-stepper-container {
+  position: relative;
+  margin-top: 1.5rem;
+  padding: 0 0.5rem;
+}
+
+.order-stepper-progress {
+  position: absolute;
+  top: 14px;
+  left: 24px;
+  right: 24px;
+  height: 4px;
+  background: #e2e8f0;
+  z-index: 1;
+}
+
+.order-stepper-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #4f46e5 0%, #10b981 100%);
+  transition: width 0.5s ease;
+}
+
+.order-stepper-nodes {
+  position: relative;
+  display: flex;
+  justify-content: space-between;
+  z-index: 2;
+}
+
+.stepper-node {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  max-width: 110px;
+}
+
+.node-dot {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: #ffffff;
+  border: 2px solid #cbd5e1;
+  color: #64748b;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+  transition: all 0.25s ease;
+}
+
+.stepper-node.complete .node-dot {
+  background: #10b981;
+  border-color: #10b981;
+  color: #ffffff;
+}
+
+.stepper-node.active .node-dot {
+  background: #4f46e5;
+  border-color: #4f46e5;
+  color: #ffffff;
+  box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.2);
+  animation: celebratePulse 2s infinite ease-in-out;
+}
+
+.node-label {
+  font-size: 0.78rem;
+  color: #1e293b;
+  line-height: 1.2;
+}
+
+.node-desc {
+  font-size: 0.68rem;
+  margin-top: 2px;
+  display: none;
+}
+
+@media (min-width: 768px) {
+  .node-desc {
+    display: block;
+  }
+}
+
+.navbar-icon-btn.orders:hover {
+  border-color: #818cf8;
+  color: #4f46e5;
+  background: #eef2ff;
+}
+
+/* Print Friendly Styles for Receipt */
+@media print {
+  .shopcart-navbar,
+  .shopcart-footer,
+  .scroll-to-top-btn,
+  .Toastify,
+  .modal-backdrop,
+  .modal-footer {
+    display: none !important;
+  }
+
+  body {
+    background: #ffffff !important;
+  }
+
+  .modal-dialog {
+    max-width: 100% !important;
+    margin: 0 !important;
+  }
+
+  .order-receipt-modal .modal-content {
+    box-shadow: none !important;
+    border: none !important;
+  }
+}
+
+/* Dark Mode Overrides for Orders Page & Modal */
+[data-bs-theme="dark"] .order-card,
+[data-bs-theme="dark"] .orders-toolbar {
+  background: #1e293b !important;
+  border-color: #334155 !important;
+  color: #f8fafc;
+}
+
+[data-bs-theme="dark"] .order-card:hover {
+  border-color: #6366f1 !important;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.4);
+}
+
+[data-bs-theme="dark"] .order-tracking-card {
+  background: rgba(79, 70, 229, 0.12) !important;
+  border-color: rgba(99, 102, 241, 0.28) !important;
+}
+
+[data-bs-theme="dark"] .order-stepper-progress {
+  background: #334155;
+}
+
+[data-bs-theme="dark"] .node-dot {
+  background: #1e293b;
+  border-color: #475569;
+  color: #94a3b8;
+}
+
+[data-bs-theme="dark"] .node-label {
+  color: #f8fafc;
+}
+
+[data-bs-theme="dark"] .order-receipt-modal .modal-content {
+  background: #0f172a !important;
+  color: #f8fafc !important;
+  border: 1px solid #334155 !important;
+}
+
+[data-bs-theme="dark"] .order-receipt-modal .modal-header,
+[data-bs-theme="dark"] .order-receipt-modal .modal-footer {
+  background: #1e293b !important;
+  border-color: #334155 !important;
+}
+
+[data-bs-theme="dark"] .order-receipt-modal .bg-light {
+  background: #1e293b !important;
+  border-color: #334155 !important;
+}
+
+[data-bs-theme="dark"] .order-receipt-modal .text-dark {
+  color: #f8fafc !important;
+}
+
+[data-bs-theme="dark"] .navbar-icon-btn.orders {
+  background: #1e293b;
+  border-color: #334155;
+  color: #94a3b8;
+}
+
+[data-bs-theme="dark"] .navbar-icon-btn.orders:hover {
+  border-color: #6366f1;
+  color: #a5b4fc;
+  background: rgba(99, 102, 241, 0.15);
+}
+
+
 
 
 

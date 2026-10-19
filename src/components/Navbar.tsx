@@ -4,6 +4,7 @@ import { NavLink, Link } from 'react-router-dom';
 import { useShoppingCart } from '../context/ShoppingCartContext';
 import { useWishlist } from '../context/WishlistContext';
 import { useTheme } from '../context/ThemeContext';
+import { useOrderHistory } from '../context/OrderHistoryContext';
 import {
   RiShoppingBag3Fill,
   RiHeartLine,
@@ -19,12 +20,14 @@ import {
   FiInfo,
   FiStar,
   FiMail,
-  FiChevronRight
+  FiChevronRight,
+  FiPackage
 } from 'react-icons/fi';
 
 export function Navbar() {
   const { openCart, cartQuantity } = useShoppingCart();
   const { wishlistQuantity } = useWishlist();
+  const { totalOrdersCount } = useOrderHistory();
   const { isDarkMode, toggleTheme } = useTheme();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
@@ -67,6 +70,20 @@ export function Navbar() {
             >
               {isDarkMode ? <RiSunFill size={19} /> : <RiMoonClearFill size={19} />}
             </button>
+
+            <div className="orders-btn-wrapper position-relative">
+              <Link
+                to="/orders"
+                className="navbar-icon-btn orders"
+                title="My Orders & Receipts"
+                aria-label={`View my orders${totalOrdersCount > 0 ? `, ${totalOrdersCount} orders` : ''}`}
+              >
+                <FiPackage size={19} />
+                {totalOrdersCount > 0 && (
+                  <span className="cart-badge-count bg-success">{totalOrdersCount}</span>
+                )}
+              </Link>
+            </div>
 
             <div className="wishlist-btn-wrapper position-relative">
               <Link
@@ -201,6 +218,24 @@ export function Navbar() {
               {wishlistQuantity > 0 ? (
                 <span className="badge bg-danger rounded-pill px-2 py-1 small">
                   {wishlistQuantity}
+                </span>
+              ) : (
+                <FiChevronRight size={16} className="text-muted" />
+              )}
+            </NavLink>
+
+            <NavLink
+              to="/orders"
+              className="mobile-nav-link"
+              onClick={closeMobileMenu}
+            >
+              <span className="d-flex align-items-center gap-3">
+                <FiPackage size={18} className="text-primary" />
+                <span>My Orders</span>
+              </span>
+              {totalOrdersCount > 0 ? (
+                <span className="badge bg-success rounded-pill px-2 py-1 small">
+                  {totalOrdersCount}
                 </span>
               ) : (
                 <FiChevronRight size={16} className="text-muted" />

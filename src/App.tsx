@@ -10,10 +10,12 @@ import { ScrollToTop } from './components/ScrollToTop'
 import { ShoppingCartProvider } from './context/ShoppingCartContext'
 import { WishlistProvider } from './context/WishlistContext'
 import { ProductQuickViewProvider } from './context/ProductQuickViewContext'
+import { OrderHistoryProvider } from './context/OrderHistoryContext'
 import { ThemeProvider, useTheme } from './context/ThemeContext'
 import { Contact } from './pages/Contact'
 import { NotFound } from './pages/NotFound'
 import { Wishlist } from './pages/Wishlist'
+import { Orders } from './pages/Orders'
 import { ShoppingCart } from './components/ShoppingCart'
 import { ProductQuickViewModal } from './components/ProductQuickViewModal'
 import { ToastContainer } from 'react-toastify'
@@ -37,6 +39,7 @@ function AppContent() {
             <Route path='/testimonials' element={<Testimonials />} />
             <Route path='/contact' element={<Contact />} />
             <Route path='/wishlist' element={<Wishlist />} />
+            <Route path='/orders' element={<Orders />} />
             <Route path='*' element={<NotFound />} />
           </Routes>
         </Container>
@@ -63,11 +66,13 @@ function App() {
   return (
     <ThemeProvider>
       <WishlistProvider>
-        <ShoppingCartProvider>
-          <ProductQuickViewProvider>
-            <AppContent />
-          </ProductQuickViewProvider>
-        </ShoppingCartProvider>
+        <OrderHistoryProvider>
+          <ShoppingCartProvider>
+            <ProductQuickViewProvider>
+              <AppContent />
+            </ProductQuickViewProvider>
+          </ShoppingCartProvider>
+        </OrderHistoryProvider>
       </WishlistProvider>
     </ThemeProvider>
   );
