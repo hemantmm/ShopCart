@@ -499,6 +499,110 @@ body {
   color: #dc2626;
 }
 
+/* Store Brand Filter Pills */
+.store-brand-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.78rem;
+  font-weight: 500;
+  padding: 0.3rem 0.65rem;
+  border-radius: 9999px;
+  border: 1px solid #e2e8f0;
+  background: #f8fafc;
+  color: #475569;
+  cursor: pointer;
+  transition: var(--transition-normal);
+}
+
+.store-brand-pill:hover {
+  background: #f1f5f9;
+  border-color: var(--primary-color);
+  color: var(--primary-color);
+  transform: translateY(-1px);
+}
+
+.store-brand-pill.active {
+  background: var(--primary-color);
+  border-color: var(--primary-color);
+  color: #ffffff;
+  font-weight: 600;
+  box-shadow: 0 2px 8px rgba(79, 70, 229, 0.25);
+}
+
+.brand-count-badge {
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 0.1rem 0.4rem;
+  border-radius: 9999px;
+  background: #e2e8f0;
+  color: #64748b;
+  transition: var(--transition-normal);
+}
+
+.store-brand-pill.active .brand-count-badge {
+  background: rgba(255, 255, 255, 0.25);
+  color: #ffffff;
+}
+
+/* Brand Filter Chip in Active Filters Tray */
+.active-filter-chip.brand-chip {
+  background: rgba(14, 165, 233, 0.12);
+  color: #0284c7;
+  border-color: rgba(14, 165, 233, 0.3);
+}
+
+.active-filter-chip.brand-chip button {
+  color: #0284c7;
+}
+
+.active-filter-chip.brand-chip button:hover {
+  color: #dc2626;
+}
+
+/* Store Breadcrumb Navigation */
+.store-breadcrumb-nav .breadcrumb {
+  background: transparent;
+  padding: 0;
+  margin-bottom: 0;
+}
+
+.store-breadcrumb-nav .breadcrumb-item {
+  display: inline-flex;
+  align-items: center;
+  font-size: 0.84rem;
+}
+
+.store-breadcrumb-nav .breadcrumb-item + .breadcrumb-item::before {
+  color: #94a3b8;
+  content: "/";
+  padding: 0 0.45rem;
+}
+
+.store-breadcrumb-nav .breadcrumb-link-btn {
+  color: var(--primary-color);
+  font-size: 0.84rem;
+  font-weight: 500;
+  vertical-align: baseline;
+}
+
+.store-breadcrumb-nav .breadcrumb-link-btn:hover {
+  text-decoration: underline !important;
+}
+
+.store-breadcrumb-nav .breadcrumb-item.active span {
+  color: #475569;
+}
+
+/* Product Card Brand Subtitle */
+.product-brand-subtitle {
+  color: #64748b;
+  font-size: 0.72rem;
+  letter-spacing: 0.04em;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
 .hover-bg-gray:hover {
   background-color: #f1f5f9 !important;
   color: var(--primary-color) !important;
@@ -2262,6 +2366,64 @@ body {
 
 [data-bs-theme="dark"] .active-filter-chip button:hover {
   color: #f87171;
+}
+
+[data-bs-theme="dark"] .store-brand-pill {
+  background: #0f172a;
+  border-color: #334155;
+  color: #cbd5e1;
+}
+
+[data-bs-theme="dark"] .store-brand-pill:hover {
+  background: #1e293b;
+  color: #818cf8;
+  border-color: #6366f1;
+}
+
+[data-bs-theme="dark"] .store-brand-pill.active {
+  background: var(--primary-color);
+  border-color: var(--primary-color);
+  color: #ffffff;
+}
+
+[data-bs-theme="dark"] .brand-count-badge {
+  background: #1e293b;
+  color: #94a3b8;
+}
+
+[data-bs-theme="dark"] .active-filter-chip.brand-chip {
+  background: rgba(56, 189, 248, 0.18);
+  color: #38bdf8;
+  border-color: rgba(56, 189, 248, 0.35);
+}
+
+[data-bs-theme="dark"] .active-filter-chip.brand-chip button {
+  color: #38bdf8;
+}
+
+[data-bs-theme="dark"] .active-filter-chip.brand-chip button:hover {
+  color: #f87171;
+}
+
+[data-bs-theme="dark"] .store-breadcrumb-nav .breadcrumb-item + .breadcrumb-item::before {
+  color: #64748b;
+}
+
+[data-bs-theme="dark"] .store-breadcrumb-nav .breadcrumb-link-btn {
+  color: #818cf8;
+}
+
+[data-bs-theme="dark"] .store-breadcrumb-nav .breadcrumb-item.active span {
+  color: #cbd5e1;
+}
+
+[data-bs-theme="dark"] .active-filters-tray {
+  background: #1e293b !important;
+  border-color: #334155 !important;
+}
+
+[data-bs-theme="dark"] .product-brand-subtitle {
+  color: #94a3b8;
 }
 
 [data-bs-theme="dark"] .hover-bg-gray {

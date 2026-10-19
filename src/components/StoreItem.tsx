@@ -22,11 +22,12 @@ type StoreItemProps = {
   rating: number;
   imgUrl: string;
   category?: string;
+  brand?: string;
   originalPrice?: number;
   badge?: string;
 };
 
-export function StoreItem({ id, name, price, imgUrl, rating, category, originalPrice, badge }: StoreItemProps) {
+export function StoreItem({ id, name, price, imgUrl, rating, category, brand, originalPrice, badge }: StoreItemProps) {
   const { getItemQuantity, increaseItemQuantity, decreaseItemQuantity, removeFromCart, openCart } = useShoppingCart();
   const { isInWishlist, toggleWishlist } = useWishlist();
   const { openQuickView } = useQuickView();
@@ -35,6 +36,7 @@ export function StoreItem({ id, name, price, imgUrl, rating, category, originalP
 
   // Fallback to storeItems data if not explicitly provided
   const itemMeta = storeItems.find((i) => i.id === id);
+  const effectiveBrand = brand ?? itemMeta?.brand;
   const effectiveOriginalPrice = originalPrice ?? itemMeta?.originalPrice;
   const effectiveBadge = badge ?? itemMeta?.badge;
 
@@ -156,6 +158,11 @@ export function StoreItem({ id, name, price, imgUrl, rating, category, originalP
       </div>
 
       <div className="product-card-body">
+        {effectiveBrand && (
+          <div className="product-brand-subtitle text-muted small fw-semibold text-uppercase mb-1" style={{ fontSize: '0.72rem', letterSpacing: '0.04em' }}>
+            {effectiveBrand}
+          </div>
+        )}
         <div className="d-flex justify-content-between align-items-start mb-2">
           <h4 
             className="product-title text-capitalize"

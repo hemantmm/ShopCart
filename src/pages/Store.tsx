@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState, useCallback } from 'react';
 import { Col, Row, Form, Button, Offcanvas, Pagination } from 'react-bootstrap';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, Link } from 'react-router-dom';
 import { StoreItem } from '../components/StoreItem';
 import storeItems from '../data/items.json';
 import {
@@ -11,7 +11,8 @@ import {
   FiChevronLeft,
   FiChevronRight,
   FiX,
-  FiStar
+  FiStar,
+  FiTag
 } from 'react-icons/fi';
 import { RiShoppingBag3Fill } from 'react-icons/ri';
 
@@ -22,7 +23,20 @@ type Item = {
   rating: number;
   price: number;
   imgUrl: string;
+  brand?: string;
+  description?: string;
+  originalPrice?: number;
+  badge?: string;
 };
+
+const ALL_BRANDS = [
+  'Apple',
+  'Nike',
+  'Adidas',
+  'Dell',
+  'Penguin Life',
+  'HarperOne'
+];
 
 const pricePresets = [
   { label: 'All', value: 1500 },
@@ -51,6 +65,8 @@ export function Store() {
 
   // Read initial values from URL params
   const urlCategory = searchParams.get('category') || 'all';
+  const urlBrand = searchParams.get('brand') || '';
+  const initialBrands = urlBrand ? urlBrand.split(',').filter(Boolean) : [];
   const urlSearch = searchParams.get('search') || '';
   const urlMaxPrice = searchParams.get('maxPrice') ? Number(searchParams.get('maxPrice')) : 1500;
   const urlMinRating = searchParams.get('minRating') ? Number(searchParams.get('minRating')) : 0;
@@ -58,6 +74,7 @@ export function Store() {
   const urlPage = searchParams.get('page') ? Number(searchParams.get('page')) : 1;
 
   const [selectedCategory, setSelectedCategory] = useState<string>(urlCategory);
+  const [selectedBrands, setSelectedBrands] = useState<string[]>(initialBrands);
   const [minRating, setMinRating] = useState<number>(urlMinRating);
   const [maxPrice, setMaxPrice] = useState<number>(urlMaxPrice);
   const [searchQuery, setSearchQuery] = useState<string>(urlSearch);
@@ -72,6 +89,7 @@ export function Store() {
   // Sync state when URL params change externally (e.g. back/forward navigation or clicking links)
   useEffect(() => {
     const cat = searchParams.get('category') || 'all';
+    const b = searchParams.get('brand') || '';
     const s = searchParams.get('search') || '';
     const p = searchParams.get('maxPrice') ? Number(searchParams.get('maxPrice')) : 1500;
     const r = searchParams.get('minRating') ? Number(searchParams.get('minRating')) : 0;
@@ -79,6 +97,7 @@ export function Store() {
     const page = searchParams.get('page') ? Number(searchParams.get('page')) : 1;
 
     setSelectedCategory(cat);
+    setSelectedBrands(b ? b.split(',').filter(Boolean) : []);
     setSearchQuery(s);
     setDebouncedSearchQuery(s);
     setMaxPrice(p);
@@ -148,14 +167,31 @@ export function Store() {
     return counts;
   }, []);
 
+  // Dynamic counts per brand
+  const brandCounts = useMemo(() => {
+    const counts: Record<string, number> = {};
+    (storeItems as Item[]).forEach((item) => {
+      if (item.brand) {
+        counts[item.brand] = (counts[item.brand] || 0) + 1;
+      }
+    });
+    return counts;
+  }, []);
+
   const filteredItems = useMemo(() => (storeItems as Item[]).filter((item) => {
     const matchesCategory = selectedCategory === 'all' || item.category.toLowerCase() === selectedCategory.toLowerCase();
+    const matchesBrand = selectedBrands.length === 0 || (item.brand !== undefined && selectedBrands.includes(item.brand));
     const matchesRating = item.rating >= minRating;
     const matchesPrice = item.price <= maxPrice;
-    const matchesSearch = item.name.toLowerCase().includes(debouncedSearchQuery.toLowerCase());
+    const query = debouncedSearchQuery.toLowerCase().trim();
+    const matchesSearch = !query ||
+      item.name.toLowerCase().includes(query) ||
+      (item.brand && item.brand.toLowerCase().includes(query)) ||
+      item.category.toLowerCase().includes(query) ||
+      (item.description && item.description.toLowerCase().includes(query));
 
-    return matchesCategory && matchesRating && matchesPrice && matchesSearch;
-  }), [debouncedSearchQuery, maxPrice, minRating, selectedCategory]);
+    return matchesCategory && matchesBrand && matchesRating && matchesPrice && matchesSearch;
+  }), [debouncedSearchQuery, maxPrice, minRating, selectedCategory, selectedBrands]);
 
   const sortedItems = useMemo(() => {
     const items = [...filteredItems];
@@ -197,6 +233,24 @@ export function Store() {
     updateUrlParams({ category: catId, page: 1 });
   };
 
+  const handleToggleBrand = (brand: string) => {
+    const nextBrands = selectedBrands.includes(brand)
+      ? selectedBrands.filter((b) => b !== brand)
+      : [...selectedBrands, brand];
+    setSelectedBrands(nextBrands);
+    setCurrentPage(1);
+    updateUrlParams({
+      brand: nextBrands.length > 0 ? nextBrands.join(',') : undefined,
+      page: 1
+    });
+  };
+
+  const handleClearBrands = () => {
+    setSelectedBrands([]);
+    setCurrentPage(1);
+    updateUrlParams({ brand: undefined, page: 1 });
+  };
+
   const handlePriceChange = (price: number) => {
     setMaxPrice(price);
     updateUrlParams({ maxPrice: price, page: 1 });
@@ -224,6 +278,7 @@ export function Store() {
 
   const clearFilters = () => {
     setSelectedCategory('all');
+    setSelectedBrands([]);
     setMinRating(0);
     setMaxPrice(1500);
     setSearchQuery('');
@@ -235,6 +290,7 @@ export function Store() {
 
   const activeFilterCount =
     (selectedCategory !== 'all' ? 1 : 0) +
+    selectedBrands.length +
     (minRating > 0 ? 1 : 0) +
     (maxPrice < 1500 ? 1 : 0) +
     (debouncedSearchQuery.trim() !== '' ? 1 : 0);
@@ -320,6 +376,46 @@ export function Store() {
                   <span>{cat.label}</span>
                 </span>
                 <span className={`category-count-badge ${isSelected ? 'active' : ''}`}>
+                  {count}
+                </span>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      <div className="mb-4">
+        <div className="d-flex justify-content-between align-items-center mb-2">
+          <Form.Label className="small fw-bold text-muted mb-0 d-flex align-items-center gap-1">
+            <FiTag size={13} />
+            <span>Brands</span>
+          </Form.Label>
+          {selectedBrands.length > 0 && (
+            <button
+              type="button"
+              className="btn btn-link p-0 text-muted small text-decoration-none"
+              style={{ fontSize: '0.75rem' }}
+              onClick={handleClearBrands}
+            >
+              Clear ({selectedBrands.length})
+            </button>
+          )}
+        </div>
+        <div className="d-flex flex-wrap gap-2">
+          {ALL_BRANDS.map((brand) => {
+            const isSelected = selectedBrands.includes(brand);
+            const count = brandCounts[brand] || 0;
+
+            return (
+              <button
+                key={brand}
+                type="button"
+                className={`store-brand-pill ${isSelected ? 'active' : ''}`}
+                onClick={() => handleToggleBrand(brand)}
+                aria-pressed={isSelected}
+              >
+                <span>{brand}</span>
+                <span className={`brand-count-badge ${isSelected ? 'active' : ''}`}>
                   {count}
                 </span>
               </button>
@@ -427,6 +523,84 @@ export function Store() {
         </Col>
 
         <Col xs={12} lg={9} ref={productGridRef}>
+          {/* Active Filter Breadcrumb Navigation */}
+          <nav aria-label="breadcrumb" className="store-breadcrumb-nav mb-3 px-1">
+            <ol className="breadcrumb mb-0 align-items-center">
+              <li className="breadcrumb-item">
+                <Link to="/" className="text-decoration-none">
+                  Home
+                </Link>
+              </li>
+              <li className={`breadcrumb-item ${selectedCategory === 'all' && selectedBrands.length === 0 && !debouncedSearchQuery ? 'active' : ''}`}>
+                {selectedCategory === 'all' && selectedBrands.length === 0 && !debouncedSearchQuery ? (
+                  <span aria-current="page" className="fw-semibold">Store</span>
+                ) : (
+                  <button
+                    type="button"
+                    className="btn btn-link p-0 text-decoration-none breadcrumb-link-btn"
+                    onClick={() => {
+                      setSelectedCategory('all');
+                      setSelectedBrands([]);
+                      setSearchQuery('');
+                      setDebouncedSearchQuery('');
+                      setCurrentPage(1);
+                      updateUrlParams({ category: 'all', brand: undefined, search: '', page: 1 });
+                    }}
+                  >
+                    Store
+                  </button>
+                )}
+              </li>
+              {selectedCategory !== 'all' && (
+                <li className={`breadcrumb-item ${selectedBrands.length === 0 && !debouncedSearchQuery ? 'active' : ''}`}>
+                  {selectedBrands.length === 0 && !debouncedSearchQuery ? (
+                    <span aria-current="page" className="fw-semibold text-capitalize">
+                      {categories.find(c => c.id.toLowerCase() === selectedCategory.toLowerCase())?.label || selectedCategory}
+                    </span>
+                  ) : (
+                    <button
+                      type="button"
+                      className="btn btn-link p-0 text-decoration-none breadcrumb-link-btn text-capitalize"
+                      onClick={() => {
+                        setSelectedBrands([]);
+                        setSearchQuery('');
+                        setDebouncedSearchQuery('');
+                        setCurrentPage(1);
+                        updateUrlParams({ brand: undefined, search: '', page: 1 });
+                      }}
+                    >
+                      {categories.find(c => c.id.toLowerCase() === selectedCategory.toLowerCase())?.label || selectedCategory}
+                    </button>
+                  )}
+                </li>
+              )}
+              {selectedBrands.length > 0 && (
+                <li className={`breadcrumb-item ${!debouncedSearchQuery ? 'active' : ''}`}>
+                  {debouncedSearchQuery ? (
+                    <button
+                      type="button"
+                      className="btn btn-link p-0 text-decoration-none breadcrumb-link-btn"
+                      onClick={() => handleClearSearch()}
+                    >
+                      {selectedBrands.join(', ')}
+                    </button>
+                  ) : (
+                    <span aria-current="page" className="fw-semibold">
+                      {selectedBrands.join(', ')}
+                    </span>
+                  )}
+                </li>
+              )}
+              {debouncedSearchQuery.trim() !== '' && (
+                <li className="breadcrumb-item active" aria-current="page">
+                  <span className="fw-semibold text-truncate d-inline-block" style={{ maxWidth: '200px', verticalAlign: 'bottom' }}>
+                    &ldquo;{debouncedSearchQuery}&rdquo;
+                  </span>
+                </li>
+              )}
+            </ol>
+          </nav>
+
           <div className="d-flex justify-content-between align-items-center mb-4 bg-white p-3 rounded-4 border shadow-sm flex-wrap gap-3">
             <div>
               <h5 className="mb-0 fw-bold text-dark">
@@ -494,7 +668,7 @@ export function Store() {
           </div>
 
           {activeFilterCount > 0 && (
-            <div className="d-flex align-items-center flex-wrap gap-2 mb-4 p-2 px-3 bg-white rounded-3 border shadow-sm">
+            <div className="active-filters-tray d-flex align-items-center flex-wrap gap-2 mb-4 p-2 px-3 bg-white rounded-3 border shadow-sm">
               <span className="text-muted small fw-semibold me-1 d-flex align-items-center gap-1">
                 <FiFilter size={13} /> Active:
               </span>
@@ -506,6 +680,15 @@ export function Store() {
                   </button>
                 </span>
               )}
+              {selectedBrands.map((brand) => (
+                <span key={brand} className="active-filter-chip brand-chip">
+                  <FiTag size={12} className="opacity-75" />
+                  <span>Brand: {brand}</span>
+                  <button type="button" onClick={() => handleToggleBrand(brand)} aria-label={`Remove ${brand} filter`}>
+                    <FiX size={14} />
+                  </button>
+                </span>
+              ))}
               {debouncedSearchQuery.trim() !== '' && (
                 <span className="active-filter-chip">
                   <span>Search: &ldquo;{debouncedSearchQuery}&rdquo;</span>
@@ -566,6 +749,9 @@ export function Store() {
                       rating={item.rating}
                       imgUrl={item.imgUrl}
                       category={item.category}
+                      brand={item.brand}
+                      originalPrice={item.originalPrice}
+                      badge={item.badge}
                     />
                   </Col>
                 ))}
