@@ -1,4 +1,4 @@
-import {createContext, ReactNode, useContext, useState} from 'react'
+import {createContext, ReactNode, useContext, useEffect, useState} from 'react'
 import { useLocalStorage } from '../hooks/useLocalStorage'
 import storeItems from '../data/items.json'
 
@@ -24,6 +24,12 @@ function isCartItems(value: unknown): value is CartItem[] {
         Number.isInteger(item.quantity) &&
         item.quantity > 0
     ))
+}
+
+function areCartItemsEqual(a: CartItem[], b: CartItem[]): boolean {
+    if (a.length !== b.length) return false
+    const bMap = new Map(b.map(item => [item.id, item.quantity]))
+    return a.every(item => bMap.get(item.id) === item.quantity)
 }
 
 type ShoppingCartContext={
@@ -52,12 +58,43 @@ export function useShoppingCart()
 }
 
 
+const CART_STORAGE_KEY = "shopping-cart"
+
 export function ShoppingCartProvider({children}:ShoppingCartProviderProps)
 {
     const [isOpen,setIsOpen]=useState(false)
-    const [cartItems,setCartItems]=useLocalStorage<CartItem[]>("shopping-cart",[], isCartItems)
+    const [cartItems,setCartItems]=useLocalStorage<CartItem[]>(CART_STORAGE_KEY,[], isCartItems)
 
     const cartQuantity=cartItems.reduce((quantity,item)=>item.quantity+quantity,0)
+
+    useEffect(() => {
+        const handleStorageChange = (e: StorageEvent) => {
+            if (e.storageArea && e.storageArea !== window.localStorage) return
+
+            if (e.key === CART_STORAGE_KEY) {
+                if (e.newValue === null) {
+                    setCartItems(curr => (curr.length === 0 ? curr : []))
+                    return
+                }
+                try {
+                    const parsedValue: unknown = JSON.parse(e.newValue)
+                    if (isCartItems(parsedValue)) {
+                        setCartItems(curr => (areCartItemsEqual(curr, parsedValue) ? curr : parsedValue))
+                    }
+                } catch {
+                    // Ignore corrupted JSON from external storage event
+                }
+            } else if (e.key === null) {
+                // Storage was cleared across all keys in another tab
+                setCartItems(curr => (curr.length === 0 ? curr : []))
+            }
+        }
+
+        window.addEventListener('storage', handleStorageChange)
+        return () => {
+            window.removeEventListener('storage', handleStorageChange)
+        }
+    }, [setCartItems])
 
     const openCart=()=>setIsOpen(true)
     const closeCart=()=>setIsOpen(false)
