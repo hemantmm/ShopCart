@@ -69,10 +69,8 @@ export function ShoppingCartProvider({children}:ShoppingCartProviderProps)
 
     useEffect(() => {
         const handleStorageChange = (e: StorageEvent) => {
-            if (e.storageArea && e.storageArea !== window.localStorage) return
-
             if (e.key === CART_STORAGE_KEY) {
-                if (e.newValue === null) {
+                if (e.newValue === null || e.newValue === '') {
                     setCartItems(curr => (curr.length === 0 ? curr : []))
                     return
                 }
