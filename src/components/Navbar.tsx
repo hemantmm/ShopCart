@@ -1,10 +1,11 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Container, Nav, Navbar as NavbarBs, Offcanvas } from 'react-bootstrap';
 import { NavLink, Link } from 'react-router-dom';
 import { useShoppingCart } from '../context/ShoppingCartContext';
 import { useWishlist } from '../context/WishlistContext';
 import { useTheme } from '../context/ThemeContext';
 import { useOrderHistory } from '../context/OrderHistoryContext';
+import { QuickSearchModal } from './QuickSearchModal';
 import {
   RiShoppingBag3Fill,
   RiHeartLine,
@@ -21,7 +22,8 @@ import {
   FiStar,
   FiMail,
   FiChevronRight,
-  FiPackage
+  FiPackage,
+  FiSearch
 } from 'react-icons/fi';
 
 export function Navbar() {
@@ -30,8 +32,21 @@ export function Navbar() {
   const { totalOrdersCount } = useOrderHistory();
   const { isDarkMode, toggleTheme } = useTheme();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
 
   const closeMobileMenu = () => setIsMobileMenuOpen(false);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
+        e.preventDefault();
+        setIsSearchOpen((prev) => !prev);
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
 
   return (
     <>
@@ -61,6 +76,28 @@ export function Navbar() {
           </Nav>
 
           <div className="navbar-actions-group d-flex align-items-center gap-1 gap-sm-2">
+            <button
+              type="button"
+              onClick={() => setIsSearchOpen(true)}
+              className="navbar-search-btn d-none d-md-flex align-items-center gap-2"
+              title="Search products (Cmd+K)"
+              aria-label="Search products (Cmd+K)"
+            >
+              <FiSearch size={14} className="text-muted" />
+              <span className="search-text-placeholder text-muted small">Search...</span>
+              <kbd className="navbar-search-kbd">⌘K</kbd>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setIsSearchOpen(true)}
+              className="navbar-icon-btn search d-md-none"
+              title="Search products"
+              aria-label="Search products"
+            >
+              <FiSearch size={19} />
+            </button>
+
             <button
               type="button"
               onClick={toggleTheme}
@@ -145,6 +182,22 @@ export function Navbar() {
         </Offcanvas.Header>
 
         <Offcanvas.Body className="d-flex flex-column p-3">
+          <div className="mb-3">
+            <button
+              type="button"
+              className="btn btn-light w-100 border text-start d-flex align-items-center justify-content-between py-2 px-3 rounded-pill"
+              onClick={() => {
+                closeMobileMenu();
+                setIsSearchOpen(true);
+              }}
+            >
+              <span className="d-flex align-items-center gap-2 text-muted small">
+                <FiSearch size={16} /> Search products...
+              </span>
+              <span className="badge bg-secondary bg-opacity-25 text-muted small">⌘K</span>
+            </button>
+          </div>
+
           <div className="d-flex flex-column gap-1 mb-4">
             <NavLink
               to="/"
@@ -263,6 +316,11 @@ export function Navbar() {
           </div>
         </Offcanvas.Body>
       </Offcanvas>
+
+      <QuickSearchModal
+        isOpen={isSearchOpen}
+        onClose={() => setIsSearchOpen(false)}
+      />
     </>
   );
 }
