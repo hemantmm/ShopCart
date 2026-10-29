@@ -30,7 +30,8 @@ const INITIAL_SEED_ORDERS: Order[] = [
         price: 500.99,
         quantity: 1,
         imgUrl: '/imgs/nikejordan.png',
-        category: 'shoes'
+        category: 'shoes',
+        selectedVariants: { size: 'US 10', color: 'Chicago Red' }
       },
       {
         id: 2,
@@ -38,7 +39,8 @@ const INITIAL_SEED_ORDERS: Order[] = [
         price: 69,
         quantity: 1,
         imgUrl: '/imgs/book2.png',
-        category: 'books'
+        category: 'books',
+        selectedVariants: { size: 'Hardcover' }
       }
     ],
     subtotal: 569.99,

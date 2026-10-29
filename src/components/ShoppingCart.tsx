@@ -3,6 +3,8 @@ import { Button, Offcanvas, Form, Row, Col } from 'react-bootstrap';
 import { useShoppingCart } from '../context/ShoppingCartContext';
 import { CartItem } from './CartItem';
 import { formatCurrency } from '../utilities/formatCurrency';
+import { getProductPrice } from '../utilities/variantHelpers';
+import { Product } from '../types/product';
 import storeItems from '../data/items.json';
 import {
   AVAILABLE_COUPONS,
@@ -148,8 +150,10 @@ export function ShoppingCart({ isOpen: isOpenProp }: ShoppingCartProps) {
 
   const calculateSubtotal = () => {
     return cartItems.reduce((total, cartItem) => {
-      const item = storeItems.find((i) => i.id === cartItem.id);
-      return total + (item?.price || 0) * cartItem.quantity;
+      const item = (storeItems as unknown as Product[]).find((i) => i.id === cartItem.id);
+      if (!item) return total;
+      const unitPrice = getProductPrice(item, cartItem.selectedVariants);
+      return total + unitPrice * cartItem.quantity;
     }, 0);
   };
 
@@ -287,14 +291,16 @@ export function ShoppingCart({ isOpen: isOpenProp }: ShoppingCartProps) {
     const cardLast4 = cleanCard.slice(-4) || '4242';
 
     const orderItemsList: OrderItem[] = cartItems.map((cartItem) => {
-      const item = storeItems.find((i) => i.id === cartItem.id);
+      const item = (storeItems as unknown as Product[]).find((i) => i.id === cartItem.id);
+      const unitPrice = item ? getProductPrice(item, cartItem.selectedVariants) : 0;
       return {
         id: cartItem.id,
         name: item?.name || `Product #${cartItem.id}`,
-        price: item?.price || 0,
+        price: unitPrice,
         quantity: cartItem.quantity,
         imgUrl: item?.imgUrl || '',
-        category: item?.category || ''
+        category: item?.category || '',
+        selectedVariants: cartItem.selectedVariants
       };
     });
 
@@ -522,8 +528,11 @@ export function ShoppingCart({ isOpen: isOpenProp }: ShoppingCartProps) {
                 />
 
                 <div className="d-flex flex-column gap-2 mb-3" style={{ maxHeight: '36vh', overflowY: 'auto' }}>
-                  {cartItems.map((item) => (
-                    <CartItem key={item.id} {...item} />
+                  {cartItems.map((item, index) => (
+                    <CartItem
+                      key={`${item.id}-${JSON.stringify(item.selectedVariants || {})}-${index}`}
+                      {...item}
+                    />
                   ))}
                 </div>
 

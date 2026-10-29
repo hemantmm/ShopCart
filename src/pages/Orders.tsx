@@ -80,9 +80,7 @@ export function Orders() {
 
   const handleReorder = (order: Order) => {
     order.items.forEach((item) => {
-      for (let i = 0; i < item.quantity; i++) {
-        increaseItemQuantity(item.id);
-      }
+      increaseItemQuantity(item.id, item.selectedVariants, item.quantity);
     });
     toast.success(`Reordered ${order.items.length} item(s) from order ${order.id}!`, {
       icon: <FiRepeat size={18} color="#4f46e5" />,
@@ -284,7 +282,13 @@ export function Orders() {
                         <div
                           key={item.id}
                           className="position-relative"
-                          title={`${item.name} (x${item.quantity})`}
+                          title={`${item.name} (x${item.quantity}${
+                            item.selectedVariants
+                              ? ` • ${Object.entries(item.selectedVariants)
+                                  .map(([t, v]) => `${t}: ${v}`)
+                                  .join(', ')}`
+                              : ''
+                          })`}
                         >
                           <img
                             src={item.imgUrl}

@@ -7,6 +7,7 @@ export type OrderItem = {
   quantity: number;
   imgUrl: string;
   category?: string;
+  selectedVariants?: Record<string, string>;
 };
 
 export type OrderCustomer = {

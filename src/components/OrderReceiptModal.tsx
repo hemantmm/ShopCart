@@ -78,9 +78,7 @@ export function OrderReceiptModal({ order, show, onHide }: OrderReceiptModalProp
 
   const handleReorder = () => {
     order.items.forEach((item) => {
-      for (let i = 0; i < item.quantity; i++) {
-        increaseItemQuantity(item.id);
-      }
+      increaseItemQuantity(item.id, item.selectedVariants, item.quantity);
     });
     toast.success(`Reordered ${order.items.length} item(s) from order ${order.id}!`, {
       icon: <FiRepeat size={18} color="#4f46e5" />,
@@ -258,6 +256,19 @@ export function OrderReceiptModal({ order, show, onHide }: OrderReceiptModalProp
                     <div className="fw-bold text-dark text-capitalize" style={{ fontSize: '0.9rem' }}>
                       {item.name}
                     </div>
+                    {item.selectedVariants && Object.keys(item.selectedVariants).length > 0 && (
+                      <div className="d-flex align-items-center gap-1 flex-wrap my-1">
+                        {Object.entries(item.selectedVariants).map(([type, val]) => (
+                          <span
+                            key={type}
+                            className="badge bg-white text-secondary border small py-0 px-2 text-capitalize"
+                            style={{ fontSize: '0.7rem' }}
+                          >
+                            {type}: {val}
+                          </span>
+                        ))}
+                      </div>
+                    )}
                     <div className="text-muted small">
                       Qty: {item.quantity} × {formatCurrency(item.price)}
                     </div>

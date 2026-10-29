@@ -21,6 +21,13 @@ import { useWishlist } from '../context/WishlistContext';
 import { useQuickView } from '../context/ProductQuickViewContext';
 import storeItems from '../data/items.json';
 import { Product } from '../types/product';
+import {
+  getDefaultVariants,
+  getProductPrice,
+  isAnyVariantOutOfStock,
+  formatVariantsSummary,
+  getColorSwatch
+} from '../utilities/variantHelpers';
 import { toast } from 'react-toastify';
 
 export function ProductQuickViewModal() {
@@ -32,6 +39,7 @@ export function ProductQuickViewModal() {
   const [activeTab, setActiveTab] = useState<'overview' | 'specs' | 'shipping'>('overview');
   const [selectedQty, setSelectedQty] = useState<number>(1);
   const [copiedLink, setCopiedLink] = useState(false);
+  const [selectedVariants, setSelectedVariants] = useState<Record<string, string>>({});
 
   useEffect(() => {
     if (selectedProduct) {
@@ -39,44 +47,77 @@ export function ProductQuickViewModal() {
       setActiveTab('overview');
       setSelectedQty(1);
       setCopiedLink(false);
+      setSelectedVariants(getDefaultVariants(selectedProduct));
     }
   }, [selectedProduct]);
 
-  const currentCartQty = selectedProduct ? getItemQuantity(selectedProduct.id) : 0;
-  const isWishlisted = selectedProduct ? isInWishlist(selectedProduct.id) : false;
+  // Dynamic price calculation with variants
+  const activePrice = useMemo(() => {
+    if (!selectedProduct) return 0;
+    return getProductPrice(selectedProduct, selectedVariants);
+  }, [selectedProduct, selectedVariants]);
+
+  const activeOriginalPrice = useMemo(() => {
+    if (!selectedProduct?.originalPrice) return undefined;
+    const priceDelta = activePrice - selectedProduct.price;
+    return selectedProduct.originalPrice + priceDelta;
+  }, [selectedProduct, activePrice]);
 
   const discountPercent = useMemo(() => {
-    if (!selectedProduct?.originalPrice || selectedProduct.originalPrice <= selectedProduct.price) {
+    if (!activeOriginalPrice || activeOriginalPrice <= activePrice) {
       return 0;
     }
-    return Math.round(
-      ((selectedProduct.originalPrice - selectedProduct.price) / selectedProduct.originalPrice) * 100
-    );
-  }, [selectedProduct]);
+    return Math.round(((activeOriginalPrice - activePrice) / activeOriginalPrice) * 100);
+  }, [activeOriginalPrice, activePrice]);
+
+  const isVariantOutOfStock = useMemo(() => {
+    return isAnyVariantOutOfStock(selectedProduct?.variants, selectedVariants);
+  }, [selectedProduct, selectedVariants]);
+
+  const currentCartQty = selectedProduct
+    ? getItemQuantity(selectedProduct.id, selectedVariants)
+    : 0;
+
+  const isWishlisted = selectedProduct ? isInWishlist(selectedProduct.id) : false;
 
   const relatedItems = useMemo(() => {
     if (!selectedProduct) return [];
     return (storeItems as unknown as Product[])
-      .filter((item) => item.category.toLowerCase() === selectedProduct.category.toLowerCase() && item.id !== selectedProduct.id)
+      .filter(
+        (item) =>
+          item.category.toLowerCase() === selectedProduct.category.toLowerCase() &&
+          item.id !== selectedProduct.id
+      )
       .slice(0, 3);
   }, [selectedProduct]);
 
   if (!selectedProduct) return null;
 
-  const galleryImages = selectedProduct.gallery && selectedProduct.gallery.length > 0
-    ? selectedProduct.gallery
-    : [selectedProduct.imgUrl];
+  const galleryImages =
+    selectedProduct.gallery && selectedProduct.gallery.length > 0
+      ? selectedProduct.gallery
+      : [selectedProduct.imgUrl];
 
   const handleAddToCart = () => {
-    for (let i = 0; i < selectedQty; i++) {
-      increaseItemQuantity(selectedProduct.id);
+    if (isVariantOutOfStock) {
+      toast.warning('The selected option is currently out of stock.');
+      return;
     }
+
+    increaseItemQuantity(selectedProduct.id, selectedVariants, selectedQty);
+    const variantDesc = formatVariantsSummary(selectedVariants);
+
     toast.success(
       <div className="d-flex align-items-center justify-content-between gap-3">
         <div>
           <div className="fw-bold text-dark" style={{ fontSize: '0.9rem' }}>
             {selectedProduct.name}
           </div>
+          {variantDesc && (
+            <div className="text-primary small fw-semibold" style={{ fontSize: '0.76rem' }}>
+              {variantDesc}
+            </div>
+          )}
           <div className="text-muted" style={{ fontSize: '0.8rem' }}>
             {selectedQty} {selectedQty > 1 ? 'items' : 'item'} added to cart!
           </div>
@@ -166,7 +207,10 @@ export function ProductQuickViewModal() {
           <Col lg={6} className="quickview-gallery-col p-4 p-md-5 d-flex flex-column justify-content-between">
             <div>
               <div className="d-flex align-items-center justify-content-between gap-2 mb-3">
-                <span className="badge bg-light text-primary border rounded-pill px-3 py-1 fw-bold text-uppercase" style={{ fontSize: '0.75rem', letterSpacing: '0.5px' }}>
+                <span
+                  className="badge bg-light text-primary border rounded-pill px-3 py-1 fw-bold text-uppercase"
+                  style={{ fontSize: '0.75rem', letterSpacing: '0.5px' }}
+                >
                   {selectedProduct.category}
                 </span>
 
@@ -239,11 +283,18 @@ export function ProductQuickViewModal() {
           <Col lg={6} className="quickview-details-col p-4 p-md-5 d-flex flex-column">
             <div className="mb-2">
               {selectedProduct.brand && (
-                <div className="quickview-brand-label text-muted text-uppercase fw-bold mb-1" style={{ fontSize: '0.8rem', letterSpacing: '1px' }}>
+                <div
+                  className="quickview-brand-label text-muted text-uppercase fw-bold mb-1"
+                  style={{ fontSize: '0.8rem', letterSpacing: '1px' }}
+                >
                   {selectedProduct.brand}
                 </div>
               )}
-              <h2 id="quickview-title" className="fw-bolder text-capitalize mb-2 text-dark" style={{ fontSize: '1.85rem' }}>
+              <h2
+                id="quickview-title"
+                className="fw-bolder text-capitalize mb-2 text-dark"
+                style={{ fontSize: '1.85rem' }}
+              >
                 {selectedProduct.name}
               </h2>
             </div>
@@ -267,24 +318,149 @@ export function ProductQuickViewModal() {
             <div className="d-flex align-items-baseline gap-3 mb-3 p-3 bg-light rounded-3 border">
               <div className="d-flex align-items-baseline gap-2">
                 <span className="fs-3 fw-bolder text-primary">
-                  {formatCurrency(selectedProduct.price)}
+                  {formatCurrency(activePrice)}
                 </span>
-                {selectedProduct.originalPrice && selectedProduct.originalPrice > selectedProduct.price && (
+                {activeOriginalPrice && activeOriginalPrice > activePrice && (
                   <span className="text-muted text-decoration-line-through fs-6">
-                    {formatCurrency(selectedProduct.originalPrice)}
+                    {formatCurrency(activeOriginalPrice)}
                   </span>
                 )}
               </div>
 
-              {discountPercent > 0 && selectedProduct.originalPrice && (
+              {discountPercent > 0 && activeOriginalPrice && (
                 <span className="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-2 py-1 fw-bold small">
-                  Save {formatCurrency(selectedProduct.originalPrice - selectedProduct.price)} ({discountPercent}% OFF)
+                  Save {formatCurrency(activeOriginalPrice - activePrice)} ({discountPercent}% OFF)
                 </span>
               )}
             </div>
 
+            {/* Product Variants Selection (Sizes, Colors, Storage) */}
+            {selectedProduct.variants && selectedProduct.variants.length > 0 && (
+              <div className="quickview-variants-block mb-3 p-3 rounded-3 bg-light border">
+                {selectedProduct.variants.map((variant) => {
+                  const currentValue = selectedVariants[variant.type];
+
+                  if (variant.type === 'color') {
+                    return (
+                      <div key={variant.type} className="mb-3">
+                        <div className="d-flex align-items-center justify-content-between mb-2">
+                          <span className="small fw-bold text-dark text-uppercase">
+                            Color: <span className="text-primary fw-bolder">{currentValue}</span>
+                          </span>
+                        </div>
+                        <div className="d-flex align-items-center gap-2 flex-wrap">
+                          {variant.options.map((opt) => {
+                            const isSelected = currentValue === opt.value;
+                            const swatch = getColorSwatch(opt.value);
+                            return (
+                              <button
+                                key={opt.value}
+                                type="button"
+                                className={`quickview-color-swatch ${isSelected ? 'active' : ''}`}
+                                style={{
+                                  background: swatch.bg,
+                                  border: swatch.border || (isSelected ? '2px solid #4f46e5' : '1px solid rgba(0,0,0,0.15)')
+                                }}
+                                onClick={() =>
+                                  setSelectedVariants((prev) => ({ ...prev, color: opt.value }))
+                                }
+                                title={opt.label}
+                                aria-label={`Select color ${opt.label}`}
+                              >
+                                {isSelected && (
+                                  <span className="quickview-swatch-check">✓</span>
+                                )}
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    );
+                  }
+
+                  if (variant.type === 'size') {
+                    return (
+                      <div key={variant.type} className="mb-2">
+                        <div className="d-flex align-items-center justify-content-between mb-2">
+                          <span className="small fw-bold text-dark text-uppercase">
+                            Select Size: <span className="text-primary fw-bolder">{currentValue}</span>
+                          </span>
+                        </div>
+                        <div className="d-flex align-items-center gap-2 flex-wrap">
+                          {variant.options.map((opt) => {
+                            const isSelected = currentValue === opt.value;
+                            return (
+                              <button
+                                key={opt.value}
+                                type="button"
+                                className={`quickview-size-pill ${isSelected ? 'active' : ''} ${
+                                  !opt.inStock ? 'disabled-option' : ''
+                                }`}
+                                disabled={!opt.inStock}
+                                onClick={() =>
+                                  setSelectedVariants((prev) => ({ ...prev, size: opt.value }))
+                                }
+                                title={!opt.inStock ? `${opt.label} (Out of Stock)` : opt.label}
+                              >
+                                <span>{opt.label}</span>
+                                {opt.priceDelta ? (
+                                  <span className="small ms-1 text-primary">
+                                    {opt.priceDelta > 0 ? `(+${formatCurrency(opt.priceDelta)})` : `(${formatCurrency(opt.priceDelta)})`}
+                                  </span>
+                                ) : null}
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    );
+                  }
+
+                  // Storage / Specs
+                  return (
+                    <div key={variant.type} className="mb-2">
+                      <div className="d-flex align-items-center justify-content-between mb-2">
+                        <span className="small fw-bold text-dark text-uppercase">
+                          Configuration: <span className="text-primary fw-bolder">{currentValue}</span>
+                        </span>
+                      </div>
+                      <div className="d-flex align-items-center gap-2 flex-wrap">
+                        {variant.options.map((opt) => {
+                          const isSelected = currentValue === opt.value;
+                          return (
+                            <button
+                              key={opt.value}
+                              type="button"
+                              className={`quickview-spec-chip ${isSelected ? 'active' : ''} ${
+                                !opt.inStock ? 'disabled-option' : ''
+                              }`}
+                              disabled={!opt.inStock}
+                              onClick={() =>
+                                setSelectedVariants((prev) => ({ ...prev, storage: opt.value }))
+                              }
+                            >
+                              <span>{opt.label}</span>
+                              {opt.priceDelta ? (
+                                <span className="spec-delta-tag ms-1">
+                                  +{formatCurrency(opt.priceDelta)}
+                                </span>
+                              ) : null}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+
             <div className="mb-3 d-flex align-items-center gap-2">
-              {maxStock <= 5 ? (
+              {isVariantOutOfStock ? (
+                <span className="badge bg-danger-subtle text-danger border border-danger-subtle px-3 py-1 rounded-pill d-inline-flex align-items-center gap-1">
+                  Selected option is currently out of stock
+                </span>
+              ) : maxStock <= 5 ? (
                 <span className="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle px-3 py-1 rounded-pill d-inline-flex align-items-center gap-1">
                   <span className="pulse-dot warning-dot"></span>
                   Only {maxStock} items left in stock — order soon!
@@ -329,7 +505,7 @@ export function ProductQuickViewModal() {
               </Nav>
             </div>
 
-            <div className="quickview-tab-content flex-grow-1 mb-4 overflow-auto pe-1" style={{ maxHeight: '200px' }}>
+            <div className="quickview-tab-content flex-grow-1 mb-4 overflow-auto pe-1" style={{ maxHeight: '180px' }}>
               {activeTab === 'overview' && (
                 <div>
                   <p className="text-secondary small lh-base mb-3">
@@ -429,12 +605,15 @@ export function ProductQuickViewModal() {
                   variant="primary"
                   className="rounded-pill py-2 px-4 fw-bold flex-grow-1 d-flex align-items-center justify-content-center gap-2 shadow"
                   onClick={handleAddToCart}
+                  disabled={isVariantOutOfStock}
                 >
                   <RiShoppingCart2Line size={20} />
                   <span>
-                    {currentCartQty > 0
+                    {isVariantOutOfStock
+                      ? 'Out of Stock'
+                      : currentCartQty > 0
                       ? `Add More (${currentCartQty} in Cart)`
-                      : `Add to Cart • ${formatCurrency(selectedProduct.price * selectedQty)}`}
+                      : `Add to Cart • ${formatCurrency(activePrice * selectedQty)}`}
                   </span>
                 </Button>
               </div>
@@ -450,7 +629,7 @@ export function ProductQuickViewModal() {
                       openCart();
                     }}
                   >
-                    Item is already in your cart. View Cart & Checkout →
+                    This configuration is in your cart. View Cart & Checkout →
                   </button>
                 </div>
               )}

@@ -28,6 +28,26 @@
     "gallery": [
       "/imgs/nikejordan.png",
       "/imgs/nikejordan1.png"
+    ],
+    "variants": [
+      {
+        "type": "size",
+        "options": [
+          { "label": "US 8", "value": "US 8", "inStock": true },
+          { "label": "US 9", "value": "US 9", "inStock": true },
+          { "label": "US 10", "value": "US 10", "inStock": true },
+          { "label": "US 11", "value": "US 11", "inStock": true },
+          { "label": "US 12", "value": "US 12", "inStock": false }
+        ]
+      },
+      {
+        "type": "color",
+        "options": [
+          { "label": "Chicago Red", "value": "Chicago Red", "inStock": true },
+          { "label": "Shadow Grey", "value": "Shadow Grey", "inStock": true },
+          { "label": "Royal Blue", "value": "Royal Blue", "inStock": true }
+        ]
+      }
     ]
   },
   {
@@ -59,6 +79,16 @@
     "gallery": [
       "/imgs/book2.png",
       "/imgs/book1.png"
+    ],
+    "variants": [
+      {
+        "type": "size",
+        "options": [
+          { "label": "Hardcover Keepsake", "value": "Hardcover", "inStock": true },
+          { "label": "Paperback Pocket", "value": "Paperback", "inStock": true, "priceDelta": -15 },
+          { "label": "Deluxe Gift Edition", "value": "Deluxe Edition", "inStock": true, "priceDelta": 20 }
+        ]
+      }
     ]
   },
   {
@@ -90,6 +120,26 @@
     "gallery": [
       "/imgs/adidas.png",
       "/imgs/adidas1.png"
+    ],
+    "variants": [
+      {
+        "type": "size",
+        "options": [
+          { "label": "US 7.5", "value": "US 7.5", "inStock": true },
+          { "label": "US 8.5", "value": "US 8.5", "inStock": true },
+          { "label": "US 9.5", "value": "US 9.5", "inStock": true },
+          { "label": "US 10.5", "value": "US 10.5", "inStock": true },
+          { "label": "US 11.5", "value": "US 11.5", "inStock": false }
+        ]
+      },
+      {
+        "type": "color",
+        "options": [
+          { "label": "Core Black", "value": "Core Black", "inStock": true },
+          { "label": "Cloud White", "value": "Cloud White", "inStock": true },
+          { "label": "Solar Red", "value": "Solar Red", "inStock": true }
+        ]
+      }
     ]
   },
   {
@@ -122,6 +172,25 @@
     "gallery": [
       "/imgs/iphone.png",
       "/imgs/iphone14.png"
+    ],
+    "variants": [
+      {
+        "type": "storage",
+        "options": [
+          { "label": "128GB", "value": "128GB", "inStock": true },
+          { "label": "256GB", "value": "256GB", "inStock": true, "priceDelta": 100 },
+          { "label": "512GB", "value": "512GB", "inStock": true, "priceDelta": 250 }
+        ]
+      },
+      {
+        "type": "color",
+        "options": [
+          { "label": "Natural Titanium", "value": "Natural Titanium", "inStock": true },
+          { "label": "Blue Titanium", "value": "Blue Titanium", "inStock": true },
+          { "label": "Black Titanium", "value": "Black Titanium", "inStock": true },
+          { "label": "White Titanium", "value": "White Titanium", "inStock": true }
+        ]
+      }
     ]
   },
   {
@@ -153,6 +222,26 @@
     "gallery": [
       "/imgs/nikejordan1.png",
       "/imgs/nikejordan.png"
+    ],
+    "variants": [
+      {
+        "type": "size",
+        "options": [
+          { "label": "US 8", "value": "US 8", "inStock": true },
+          { "label": "US 9", "value": "US 9", "inStock": true },
+          { "label": "US 10", "value": "US 10", "inStock": true },
+          { "label": "US 11", "value": "US 11", "inStock": true },
+          { "label": "US 12", "value": "US 12", "inStock": false }
+        ]
+      },
+      {
+        "type": "color",
+        "options": [
+          { "label": "Bred Retro", "value": "Bred Retro", "inStock": true },
+          { "label": "University Blue", "value": "University Blue", "inStock": true },
+          { "label": "Panda White/Black", "value": "Panda White/Black", "inStock": true }
+        ]
+      }
     ]
   },
   {
@@ -184,6 +273,16 @@
     "gallery": [
       "/imgs/book1.png",
       "/imgs/book2.png"
+    ],
+    "variants": [
+      {
+        "type": "size",
+        "options": [
+          { "label": "Hardcover Deluxe", "value": "Hardcover", "inStock": true },
+          { "label": "Paperback Reader", "value": "Paperback", "inStock": true, "priceDelta": -12 },
+          { "label": "25th Anniversary Edition", "value": "Anniversary Edition", "inStock": true, "priceDelta": 15 }
+        ]
+      }
     ]
   },
   {
@@ -215,6 +314,25 @@
     "gallery": [
       "/imgs/adidas1.png",
       "/imgs/adidas.png"
+    ],
+    "variants": [
+      {
+        "type": "size",
+        "options": [
+          { "label": "US 8", "value": "US 8", "inStock": true },
+          { "label": "US 9", "value": "US 9", "inStock": true },
+          { "label": "US 10", "value": "US 10", "inStock": true },
+          { "label": "US 11", "value": "US 11", "inStock": true }
+        ]
+      },
+      {
+        "type": "color",
+        "options": [
+          { "label": "Triple White", "value": "Triple White", "inStock": true },
+          { "label": "Carbon Grey", "value": "Carbon Grey", "inStock": true },
+          { "label": "Signal Green", "value": "Signal Green", "inStock": true }
+        ]
+      }
     ]
   },
   {
@@ -247,6 +365,25 @@
     "gallery": [
       "/imgs/iphone14.png",
       "/imgs/iphone.png"
+    ],
+    "variants": [
+      {
+        "type": "storage",
+        "options": [
+          { "label": "128GB", "value": "128GB", "inStock": true },
+          { "label": "256GB", "value": "256GB", "inStock": true, "priceDelta": 100 },
+          { "label": "512GB", "value": "512GB", "inStock": true, "priceDelta": 220 }
+        ]
+      },
+      {
+        "type": "color",
+        "options": [
+          { "label": "Midnight", "value": "Midnight", "inStock": true },
+          { "label": "Starlight", "value": "Starlight", "inStock": true },
+          { "label": "Deep Purple", "value": "Deep Purple", "inStock": true },
+          { "label": "Product RED", "value": "Product RED", "inStock": true }
+        ]
+      }
     ]
   },
   {
@@ -279,6 +416,25 @@
     "gallery": [
       "/imgs/macbook.png",
       "/imgs/dell.png"
+    ],
+    "variants": [
+      {
+        "type": "storage",
+        "options": [
+          { "label": "256GB / 8GB RAM", "value": "256GB / 8GB RAM", "inStock": true },
+          { "label": "512GB / 16GB RAM", "value": "512GB / 16GB RAM", "inStock": true, "priceDelta": 200 },
+          { "label": "1TB / 24GB RAM", "value": "1TB / 24GB RAM", "inStock": true, "priceDelta": 450 }
+        ]
+      },
+      {
+        "type": "color",
+        "options": [
+          { "label": "Midnight", "value": "Midnight", "inStock": true },
+          { "label": "Space Gray", "value": "Space Gray", "inStock": true },
+          { "label": "Silver", "value": "Silver", "inStock": true },
+          { "label": "Starlight", "value": "Starlight", "inStock": true }
+        ]
+      }
     ]
   },
   {
@@ -311,6 +467,23 @@
     "gallery": [
       "/imgs/dell.png",
       "/imgs/macbook.png"
+    ],
+    "variants": [
+      {
+        "type": "storage",
+        "options": [
+          { "label": "512GB / 16GB RAM", "value": "512GB / 16GB RAM", "inStock": true },
+          { "label": "1TB / 16GB RAM", "value": "1TB / 16GB RAM", "inStock": true, "priceDelta": 120 },
+          { "label": "1TB / 32GB RAM", "value": "1TB / 32GB RAM", "inStock": true, "priceDelta": 250 }
+        ]
+      },
+      {
+        "type": "color",
+        "options": [
+          { "label": "Platinum Silver", "value": "Platinum Silver", "inStock": true },
+          { "label": "Carbon Black", "value": "Carbon Black", "inStock": true }
+        ]
+      }
     ]
   }
 ]
