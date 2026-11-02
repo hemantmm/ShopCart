@@ -4265,3 +4265,217 @@ body {
   border-color: #6366f1;
 }
 
+
+
+.lazy-image-container {
+  position: relative;
+  overflow: hidden;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background-color: transparent;
+}
+
+.lazy-image-skeleton {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100%;
+  height: 100%;
+  background: #f1f5f9;
+  z-index: 1;
+  pointer-events: none;
+  overflow: hidden;
+  border-radius: inherit;
+  transition: opacity 0.35s cubic-bezier(0.4, 0, 0.2, 1),
+              visibility 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.lazy-image-shimmer-highlight {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    rgba(241, 245, 249, 0) 0%,
+    rgba(255, 255, 255, 0.75) 50%,
+    rgba(241, 245, 249, 0) 100%
+  );
+  animation: lazyImageShimmerSweep 1.5s infinite ease-in-out;
+}
+
+[data-bs-theme="dark"] .lazy-image-skeleton {
+  background: #1e293b;
+}
+
+[data-bs-theme="dark"] .lazy-image-shimmer-highlight {
+  background: linear-gradient(
+    90deg,
+    rgba(30, 41, 59, 0) 0%,
+    rgba(71, 85, 105, 0.5) 50%,
+    rgba(30, 41, 59, 0) 100%
+  );
+}
+
+.lazy-image-skeleton.hidden {
+  opacity: 0;
+  visibility: hidden;
+}
+
+@keyframes lazyImageShimmerSweep {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+.lazy-image-img {
+  transition: opacity 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+              filter 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+              transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  will-change: opacity, filter, transform;
+}
+
+.lazy-image-img.loading {
+  opacity: 0;
+  filter: blur(14px);
+  transform: scale(0.96);
+}
+
+.lazy-image-img.loaded {
+  opacity: 1;
+  filter: blur(0);
+  transform: scale(1);
+}
+
+.lazy-image-fallback {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: #f8fafc;
+  color: #94a3b8;
+  gap: 0.35rem;
+  padding: 0.5rem;
+  text-align: center;
+  z-index: 2;
+  border-radius: inherit;
+}
+
+.lazy-image-fallback-icon {
+  color: #cbd5e1;
+}
+
+.lazy-image-fallback-text {
+  font-size: 0.72rem;
+  font-weight: 500;
+  max-width: 90%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-transform: capitalize;
+}
+
+[data-bs-theme="dark"] .lazy-image-fallback {
+  background: #0f172a;
+  color: #64748b;
+}
+
+[data-bs-theme="dark"] .lazy-image-fallback-icon {
+  color: #475569;
+}
+
+.store-card-img-wrapper {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  border-radius: var(--radius-sm);
+}
+
+.store-card-img {
+  max-height: 180px;
+  max-width: 100%;
+  object-fit: contain;
+}
+
+.modern-product-card:hover .store-card-img.loaded,
+.modern-product-card:hover .card-img-wrapper .store-card-img.loaded {
+  transform: scale(1.08) !important;
+}
+
+.showcase-lazy-wrapper {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.showcase-carousel-card:hover .showcase-img.loaded,
+.showcase-img-container:hover .showcase-img.loaded {
+  transform: scale(1.08) rotate(-2deg) !important;
+}
+
+.flash-deal-lazy-wrapper {
+  width: 100%;
+  height: 220px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-md);
+}
+
+.flash-deal-img-card:hover .flash-deal-img.loaded {
+  transform: scale(1.05) !important;
+}
+
+.quickview-main-lazy-wrapper {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.quickview-main-image-wrapper:hover .quickview-main-image.loaded {
+  transform: scale(1.08) !important;
+}
+
+.cart-item-thumb-img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lazy-image-shimmer-highlight {
+    animation: none !important;
+  }
+  .lazy-image-img {
+    transition: opacity 0.15s ease !important;
+    filter: none !important;
+    transform: none !important;
+  }
+  .modern-product-card:hover .store-card-img.loaded,
+  .showcase-carousel-card:hover .showcase-img.loaded,
+  .flash-deal-img-card:hover .flash-deal-img.loaded,
+  .quickview-main-image-wrapper:hover .quickview-main-image.loaded {
+    transform: none !important;
+  }
+}

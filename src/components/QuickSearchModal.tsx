@@ -12,6 +12,7 @@ import {
   FiCornerDownLeft
 } from 'react-icons/fi';
 import { RiShoppingBag3Fill, RiSparklingFill } from 'react-icons/ri';
+import { LazyImage } from './LazyImage';
 import storeItems from '../data/items.json';
 import { Product } from '../types/product';
 import { formatCurrency } from '../utilities/formatCurrency';
@@ -286,11 +287,13 @@ export function QuickSearchModal({ isOpen, onClose }: QuickSearchModalProps) {
                     tabIndex={0}
                   >
                     <div className="d-flex align-items-center gap-3 min-w-0">
-                      <div className="spotlight-result-thumb-wrapper flex-shrink-0 position-relative">
-                        <img
+                      <div className="spotlight-result-thumb-wrapper flex-shrink-0 position-relative overflow-hidden">
+                        <LazyImage
                           src={product.imgUrl}
                           alt={product.name}
+                          loading="lazy"
                           className="spotlight-result-thumb"
+                          wrapperClassName="w-100 h-100"
                         />
                       </div>
                       <div className="min-w-0">

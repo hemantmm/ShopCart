@@ -18,6 +18,7 @@ import {
 import { Order, OrderStatus } from '../types/order';
 import { formatCurrency } from '../utilities/formatCurrency';
 import { useShoppingCart } from '../context/ShoppingCartContext';
+import { LazyImage } from './LazyImage';
 import { toast } from 'react-toastify';
 
 type OrderReceiptModalProps = {
@@ -138,7 +139,6 @@ export function OrderReceiptModal({ order, show, onHide }: OrderReceiptModalProp
       </Modal.Header>
 
       <Modal.Body className="p-4 p-md-4">
-        {/* Tracking Timeline */}
         <div className="order-tracking-card p-3 p-md-4 rounded-3 mb-4">
           <div className="d-flex align-items-center justify-content-between mb-3 flex-wrap gap-2">
             <div>
@@ -172,7 +172,6 @@ export function OrderReceiptModal({ order, show, onHide }: OrderReceiptModalProp
             </div>
           </div>
 
-          {/* Stepper Bar */}
           <div className="order-stepper-container">
             <div className="order-stepper-progress">
               <div
@@ -200,7 +199,6 @@ export function OrderReceiptModal({ order, show, onHide }: OrderReceiptModalProp
           </div>
         </div>
 
-        {/* Customer & Shipping Destination */}
         <Row className="g-3 mb-4">
           <Col md={6}>
             <div className="p-3 bg-light rounded-3 border h-100">
@@ -236,7 +234,6 @@ export function OrderReceiptModal({ order, show, onHide }: OrderReceiptModalProp
           </Col>
         </Row>
 
-        {/* Purchased Items List */}
         <div className="mb-4">
           <h6 className="fw-bold text-dark mb-3">Order Items ({order.items.length})</h6>
           <div className="d-flex flex-column gap-2">
@@ -246,10 +243,13 @@ export function OrderReceiptModal({ order, show, onHide }: OrderReceiptModalProp
                 className="d-flex align-items-center justify-content-between p-2 px-3 rounded-3 border bg-light bg-opacity-50"
               >
                 <div className="d-flex align-items-center gap-3">
-                  <img
+                  <LazyImage
                     src={item.imgUrl}
                     alt={item.name}
-                    className="rounded-2 border bg-white p-1"
+                    loading="lazy"
+                    className="p-1"
+                    wrapperClassName="rounded-2 border bg-white flex-shrink-0 overflow-hidden"
+                    wrapperStyle={{ width: '48px', height: '48px' }}
                     style={{ width: '48px', height: '48px', objectFit: 'contain' }}
                   />
                   <div>
@@ -282,7 +282,6 @@ export function OrderReceiptModal({ order, show, onHide }: OrderReceiptModalProp
           </div>
         </div>
 
-        {/* Pricing Breakdown Card */}
         <div className="p-3 bg-light rounded-3 border">
           <div className="d-flex justify-content-between text-muted small mb-2">
             <span>Items Subtotal:</span>

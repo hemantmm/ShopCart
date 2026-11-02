@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Row, Col, Button } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import { StoreItem } from '../components/StoreItem';
+import { LazyImage } from '../components/LazyImage';
 import SlideShow, { ShowcaseSlide } from '../components/SlideShow';
 import storeItems from '../data/items.json';
 import { useShoppingCart } from '../context/ShoppingCartContext';
@@ -317,10 +318,12 @@ export function Home() {
 
           <Col lg={5} className="text-center">
             <div className="flash-deal-img-card">
-              <img
+              <LazyImage
                 src={flashDealItem.imgUrl}
                 alt={flashDealItem.name}
+                loading="lazy"
                 className="flash-deal-img"
+                wrapperClassName="flash-deal-lazy-wrapper"
               />
             </div>
           </Col>

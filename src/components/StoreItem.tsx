@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { LazyImage } from './LazyImage';
 import { formatCurrency } from '../utilities/formatCurrency';
 import { useShoppingCart } from '../context/ShoppingCartContext';
 import { useWishlist } from '../context/WishlistContext';
@@ -215,7 +216,13 @@ export function StoreItem({
           <span className="product-badge-pill">{effectiveBadge}</span>
         )}
 
-        <img src={imgUrl} alt={name} loading="lazy" />
+        <LazyImage
+          src={imgUrl}
+          alt={name}
+          loading="lazy"
+          className="store-card-img"
+          wrapperClassName="store-card-img-wrapper"
+        />
 
         <button
           type="button"

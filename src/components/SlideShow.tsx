@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from 'react-bootstrap';
 import { FiChevronLeft, FiChevronRight, FiShoppingBag, FiStar, FiEye } from 'react-icons/fi';
+import { LazyImage } from './LazyImage';
 import { formatCurrency } from '../utilities/formatCurrency';
 import { useShoppingCart } from '../context/ShoppingCartContext';
 import { useQuickView } from '../context/ProductQuickViewContext';
@@ -69,11 +70,13 @@ const Slideshow: React.FC<SlideshowProps> = ({ slides, interval = 4500 }) => {
         style={{ cursor: 'pointer' }}
         title="Click to view product details"
       >
-        <img
+        <LazyImage
           key={current.id}
           src={current.imageUrl}
           alt={current.name}
+          loading="lazy"
           className="showcase-img"
+          wrapperClassName="showcase-lazy-wrapper"
         />
       </div>
 

@@ -16,6 +16,7 @@ import { useShoppingCart } from '../context/ShoppingCartContext';
 import { Order, OrderStatus } from '../types/order';
 import { formatCurrency } from '../utilities/formatCurrency';
 import { OrderReceiptModal } from '../components/OrderReceiptModal';
+import { LazyImage } from '../components/LazyImage';
 import { toast } from 'react-toastify';
 
 export function Orders() {
@@ -290,10 +291,13 @@ export function Orders() {
                               : ''
                           })`}
                         >
-                          <img
+                          <LazyImage
                             src={item.imgUrl}
                             alt={item.name}
-                            className="rounded-3 border p-1 bg-white"
+                            loading="lazy"
+                            className="p-1"
+                            wrapperClassName="rounded-3 border bg-white flex-shrink-0 overflow-hidden"
+                            wrapperStyle={{ width: '56px', height: '56px' }}
                             style={{
                               width: '56px',
                               height: '56px',

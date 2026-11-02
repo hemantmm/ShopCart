@@ -15,6 +15,7 @@ import {
   RiSubtractLine,
 } from 'react-icons/ri';
 import { FiCheck } from 'react-icons/fi';
+import { LazyImage } from './LazyImage';
 import { formatCurrency } from '../utilities/formatCurrency';
 import { useShoppingCart } from '../context/ShoppingCartContext';
 import { useWishlist } from '../context/WishlistContext';
@@ -51,7 +52,6 @@ export function ProductQuickViewModal() {
     }
   }, [selectedProduct]);
 
-  // Dynamic price calculation with variants
   const activePrice = useMemo(() => {
     if (!selectedProduct) return 0;
     return getProductPrice(selectedProduct, selectedVariants);
@@ -229,10 +229,12 @@ export function ProductQuickViewModal() {
               </div>
 
               <div className="quickview-main-image-wrapper mb-3 position-relative rounded-4 overflow-hidden shadow-sm">
-                <img
+                <LazyImage
                   src={activeImage || selectedProduct.imgUrl}
                   alt={selectedProduct.name}
+                  loading="lazy"
                   className="quickview-main-image img-fluid"
+                  wrapperClassName="quickview-main-lazy-wrapper"
                 />
               </div>
 
@@ -248,7 +250,14 @@ export function ProductQuickViewModal() {
                         onClick={() => setActiveImage(img)}
                         aria-label={`View image angle ${idx + 1}`}
                       >
-                        <img src={img} alt={`${selectedProduct.name} angle ${idx + 1}`} />
+                        <LazyImage
+                          src={img}
+                          alt={`${selectedProduct.name} angle ${idx + 1}`}
+                          loading="lazy"
+                          className="w-100 h-100"
+                          wrapperClassName="w-100 h-100 rounded-2 overflow-hidden"
+                          showSkeleton={true}
+                        />
                       </button>
                     );
                   })}
@@ -334,7 +343,6 @@ export function ProductQuickViewModal() {
               )}
             </div>
 
-            {/* Product Variants Selection (Sizes, Colors, Storage) */}
             {selectedProduct.variants && selectedProduct.variants.length > 0 && (
               <div className="quickview-variants-block mb-3 p-3 rounded-3 bg-light border">
                 {selectedProduct.variants.map((variant) => {
@@ -416,7 +424,6 @@ export function ProductQuickViewModal() {
                     );
                   }
 
-                  // Storage / Specs
                   return (
                     <div key={variant.type} className="mb-2">
                       <div className="d-flex align-items-center justify-content-between mb-2">
@@ -660,10 +667,13 @@ export function ProductQuickViewModal() {
                       }
                     }}
                   >
-                    <img
+                    <LazyImage
                       src={item.imgUrl}
                       alt={item.name}
+                      loading="lazy"
                       className="rounded-2"
+                      wrapperClassName="rounded-2 flex-shrink-0"
+                      wrapperStyle={{ width: '50px', height: '50px' }}
                       style={{ width: '50px', height: '50px', objectFit: 'contain' }}
                     />
                     <div className="min-w-0 flex-grow-1">

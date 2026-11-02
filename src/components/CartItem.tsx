@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { LazyImage } from './LazyImage';
 import { useShoppingCart } from '../context/ShoppingCartContext';
 import storeItems from '../data/items.json';
 import { Product } from '../types/product';
@@ -41,7 +42,13 @@ export function CartItem({ id, quantity, selectedVariants }: CartItemProps) {
 
   return (
     <div className="cart-item-row">
-      <img src={item.imgUrl} alt={item.name} className="cart-item-thumb" />
+      <LazyImage
+        src={item.imgUrl}
+        alt={item.name}
+        loading="lazy"
+        className="cart-item-thumb-img"
+        wrapperClassName="cart-item-thumb flex-shrink-0"
+      />
 
       <div className="flex-grow-1 min-w-0">
         <div className="d-flex align-items-center justify-content-between gap-1">
